@@ -1,126 +1,131 @@
-﻿; 2020年07月05日 15:52:42
-; 在boot里将loader读入到内存并且执行loader
+; 2020��07��05�� 15/52/42
+; ��boot�ｫloader���뵽�ڴ沢��ִ��loader
 ;==================================================================================================
 
-;boot状态
-org 7c00H		
-;导入常量信息			
+;boot״̬
+org 7c00H
+;���볣����Ϣ			
 %include	"const.inc"		
 
-;短跳转，跳过FAT12头信息
+;����ת������FAT12ͷ��Ϣ
 jmp short LABEL_START
-;FAT12头信息
+;FAT12ͷ��Ϣ
 %include	"fat12hdr.inc"
 
-;代码开始处
+;���뿪ʼ��
 ;==================================================================================================
 LABEL_START:
-		;初始化寄存器
+		;��ʼ���Ĵ���
 		mov ax,cs
 		mov ds,ax
 		mov ss,ax
-		mov sp,TOPOFSTACK
+		mov sp,TOP_OF_STACK
 		
-		;清空屏幕
+		;�����Ļ
 		call clearScreen
 		
-		;软驱复位
+		;������λ
 		mov ah,00h
 		mov dl,0h
 		int 13H								
 		
-		;初始化准备解析软盘
+		;��ʼ��׼����������
 		mov ax,BUFFER_ROOT_ADDRESS
 		mov es,ax
-		mov ax,RootDercotryStart			
+		mov ax,ROOT_DERCOTRY_START			
 	
-	;此循环读取根目录扇区到内存并且在根目录扇区中查找loader文件描述条目
+	;��ѭ����ȡ��Ŀ¼�������ڴ沢���ڸ�Ŀ¼�����в���loader�ļ�������Ŀ
 	TRAVERSE_THE_ROOT_SECTOR:
-		mov bx,BufferRootOffest
+		mov bx,BUFFER_ROOT_OFFSET
 		mov cx,1
-		call ReadSector						;读扇区
-		call FindTheLoader					;寻找loader文件
-		cmp cx,1							;判断是否找到文件
+		call readSector						;������
+		call findTheLoaer					;Ѱ��loader�ļ�
+		cmp cx,1							;�ж��Ƿ��ҵ��ļ�
 		je FIND_THE_LOADER_FILE
-		inc ax								;下一个扇区
-		dec word [ds:RootDirctoryCount]		;根目录扇区的个数
-		cmp word [ds:RootDirctoryCount],0	;根目录扇区是否已经遍历完
+		inc ax								;��һ������
+		dec word [ds:RootDirctoryCount]		;��Ŀ¼�����ĸ���
+		cmp word [ds:RootDirctoryCount],0	;��Ŀ¼�����Ƿ��Ѿ�������
 	jne TRAVERSE_THE_ROOT_SECTOR
 	
-	;未找到loader文件
+	;δ�ҵ�loader�ļ�
 	NOT_FIND_THE_LOADER_FILE:
-		mov bx,StringNotFindLoad
-		mov si,0A0H
-		call DisplayString
+		mov si,StringNotFindLoad
+		mov di,0A0H
+		call displayString
 		jmp $
 	
-	;找到loader文件
+	;�ҵ�loader�ļ�
 	FIND_THE_LOADER_FILE:
-		add bx,01AH							;文件描述条目的DIR_FstClus属性，它记录了文件内容在那个扇区
-		mov ax,[es:bx]						;暂存
-		mov dx,BaseOfLoader					;把文件的内容加载到这个地址，基地址
+		add bx,01AH							;�ļ�������Ŀ��DIR_FstClus���ԣ�����¼���ļ��������Ǹ�����
+		mov ax,[es:bx]						;�ݴ�
+		mov dx,BASE_OF_LOADER				;���ļ������ݼ��ص������ַ������ַ
 		mov es,dx
-		mov bx,OffsetOfLoader				;把文件的内容加载到这个地址，偏移地址
+		mov bx,OFFSET_OF_LOADER				;���ļ������ݼ��ص������ַ��ƫ�Ƶ�ַ
 	
-	;此循环读取loader内容到内存并且读取FAT扇区，在FAT扇区中查找loader文件是否还有后继扇区
+		mov di,00H
+	;��ѭ����ȡloader���ݵ��ڴ沢�Ҷ�ȡFAT��������FAT�����в���loader�ļ��Ƿ��к������
 	LOOP_LOADING_LOADER_FILE:
 		push ax
-		add ax,DataSectorStart				;文件内容的扇区号
-		mov cx,1							;读一个扇区
-		call ReadSector						;读文件的内容 
+		add ax,DATA_SECTOR_START			;�ļ����ݵ�������
+		mov cx,1							;��һ������
+		call readSector						;���ļ�������
+		mov si,StringLoadingLoader
+		call displayString
 		pop ax                          	
-		call ReadFATValue					;读取FAT值
-		cmp ax,0FF7H						;如果大于等于0FF7H就停下来
-		jnb loadLoaderOver              	
-		add bx,512							;缓冲区
+		call readFATValue					;��ȡFATֵ
+		cmp ax,0FF7H						;������ڵ���0FF7H��ͣ����
+		jnb LOAD_LOADER_OVER              	
+		add bx,512							;������
 	jmp LOOP_LOADING_LOADER_FILE
 	
-	;loader文件完全载入内存之后转去执行loader文件
+	;loader�ļ���ȫ�����ڴ�֮��תȥִ��loader�ļ�
 	LOAD_LOADER_OVER:
-		mov bx,StringLoadedLoad
-		mov si,0A0H
-		call DisplayString
-		jmp BASE_OF_LOADER:OFFSET_OF_LOADER		;执行loader
+		mov si,StringLoadedLoad
+		mov di,0A0H
+		call displayString
+		jmp BASE_OF_LOADER:OFFSET_OF_LOADER		;ִ��loader
 
-;寻找loader文件(cx==0	没有找到文件		cx==1	找到文件		es:bx	指向文件描述条目)
+;Ѱ��loader�ļ�(cx==0	û���ҵ��ļ�		cx==1	�ҵ��ļ�		es:bx	ָ���ļ�������Ŀ)
 ;--------------------------------------------------------------------------------------------------
 findTheLoaer:
-	mov cx,TheSectorFileCount				;一个扇区有16个文件条目描述符
+	mov cx,THE_SECTOR_FILE_COUNT			;һ��������16���ļ���Ŀ������
 	
 	TRAVERSE_FILE_ENTRY:
 		push cx
-		mov cx,CharLengthOfFileName			;文件的名字一共有11个字符
-		mov si,FileNameLoader				;文件名字字符串的偏移地址
+		mov cx,CHARLENGTH_OF_FILE_NAME		;�ļ�������һ����11���ַ�
+		mov si,FileNameLoader				;�ļ������ַ�����ƫ�Ƶ�ַ
 		TRAVERSE_FILE_CHAR:
 			mov dh,[es:bx]
 			mov dl,[ds:si]
-			cmp dh,dl						;字符比较
-			jne	CONTINUE_TRAVERSE_FILE_ENTRY;有一个字符不相同就不是要找的文件
+			cmp dh,dl						;�ַ��Ƚ�
+			jne	CONTINUE_TRAVERSE_FILE_ENTRY;��һ���ַ�����ͬ�Ͳ���Ҫ�ҵ��ļ�
 			inc bx
-			inc si							;下一个字符
+			inc si							;��һ���ַ�
 		loop TRAVERSE_FILE_CHAR
-		and bx,0FFE0H					;指向文件描述条目的开始
+		and bx,0FFE0H					;ָ���ļ�������Ŀ�Ŀ�ʼ
 		pop cx
-		mov cx,1						;标记找到文件
+		mov cx,1						;����ҵ��ļ�
 		ret
 		CONTINUE_TRAVERSE_FILE_ENTRY:
-		and bx,0FFE0H					;让bx移到文件描述符条目的开头
-		add bx,32						;下一个文件描述条目
+		and bx,0FFE0H					;��bx�Ƶ��ļ���������Ŀ�Ŀ�ͷ
+		add bx,32						;��һ���ļ�������Ŀ
 		pop cx
 	loop TRAVERSE_FILE_ENTRY
-	mov cx,0								;标记没有找到文件
+	mov cx,0								;���û���ҵ��ļ�
 	ret
 	
-;导入函数及定义一些变量
+;���뺯��������һЩ����
 ;==================================================================================================
-	%include	"./include/load.inc"	
-	RootDirctoryCount:		dw		14						;224*32/512=14	BPB_RootEntCnt*32/BPB_BytsPerSec=14	根目录区的扇区个数
-	EvenOrOdd:				db		0						;奇数还是偶数
-	FileNameLoader:			db		'LOADER  BIN'			;11个字节的文件名字
-	StringLoadedLoad:		db		'loaded the loader',$
-	StringNotFindLoad:		db		'not find the loder',$
+	%include	"lib.inc"
+	%include	"floppylib.inc"
+	RootDirctoryCount:		dw		14						;224*32/512=14	BPB_RootEntCnt*32/BPB_BytsPerSec=14	��Ŀ¼������������
+	EvenOrOdd:				db		0						;��������ż��
+	FileNameLoader:			db		'LOADER  BIN'			;11���ֽڵ��ļ�����
+	StringLoadedLoad:		db		'loaded the loader',0
+	StringNotFindLoad:		db		'not find the loder',0
+	StringLoadingLoader:	db		'.',0
 	
-;空余字节填补及boot结束标志
+;�����ֽ����boot������־
 ;==================================================================================================
 	times	510-($-$$)	db	0
 	dw		0AA55H

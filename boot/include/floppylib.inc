@@ -1,4 +1,4 @@
-2020年07月05日 17:02:07
+;2020年07月05日 17/02/07
 ;读取软盘用的函数抽取
 ;========================================================================================================
 
@@ -40,7 +40,7 @@ readFATValue:
 		push es
 		push bx
 		
-		mov dx,BufferFATAddress
+		mov dx,BUFFER_FAT_ADDRESS
 		mov es,dx
 		mov byte [ds:EvenOrOdd],0				;开始认为它是偶数
 		
@@ -56,9 +56,9 @@ readFATValue:
 		mov bx,[ds:BPB_BytsPerSec]				;偏移/512=所在扇区(余数为相对于所在扇区中的偏移)
 		div bx
 		push dx
-		add ax,FATSectorStart					;扇区号
+		add ax,FAT_SECTOR_START					;扇区号
 		mov cx,2								;要读的扇区个数,FAT项有可能是跨扇区的
-		mov bx,BufferFATOffest
+		mov bx,BUFFER_FAT_OFFSET
 		call readSector							;读FAT扇区
 		pop dx
 		add bx,dx								;加上相对于所占扇区中的偏移就是我们所要找的数据的地址
