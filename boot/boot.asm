@@ -19,7 +19,8 @@ LABEL_START:
 		mov ax,cs
 		mov ds,ax
 		mov ss,ax
-		mov sp,TOP_OF_STACK
+		;boot状态下的堆栈栈顶指针
+		mov sp,TOP_OF_STACK_BOOT
 		
 		;清空屏幕
 		call clearScreen
@@ -113,19 +114,53 @@ findTheLoaer:
 	loop TRAVERSE_FILE_ENTRY
 	mov cx,0								;标记没有找到文件
 	ret
-	
+
+;清空屏幕
+;--------------------------------------------------------------------------------------------------
+clearScreen:
+	mov ax,0B800H
+	mov es,ax
+	mov di,0
+	mov ax,0700H
+	mov cx,2000
+	.clear:
+		mov [es:di],ax
+		add di,2
+	loop .clear
+	ret
+
+;打印字符串
+;--------------------------------------------------------------------------------------------------
+displayString:
+	push ax
+	push es
+	mov ax, 0B800H
+	mov es, ax
+	mov ah, 07H
+	.display:
+		mov al, [ds:si]
+		cmp al, 0
+		je .over
+		mov [es:di], ax
+		inc si
+		add di, 2
+	jmp .display
+	.over:
+	pop es
+	pop ax
+	ret	
+
 ;导入函数及定义一些变量
 ;==================================================================================================
-	%include	"lib.inc"
-	%include	"floppylib.inc"
-	RootDirctoryCount:		dw		14						;224*32/512=14	BPB_RootEntCnt*32/BPB_BytsPerSec=14	根目录区的扇区个数
-	EvenOrOdd:				db		0						;奇数还是偶数
-	FileNameLoader:			db		'LOADER  BIN'			;11个字节的文件名字
-	StringLoadedLoad:		db		'loaded the loader',0
-	StringNotFindLoad:		db		'not find the loder',0
-	StringLoadingLoader:	db		'.',0
+%include	"floppylib.inc"
+RootDirctoryCount:		dw		14						;224*32/512=14	BPB_RootEntCnt*32/BPB_BytsPerSec=14	根目录区的扇区个数
+EvenOrOdd:				db		0						;奇数还是偶数
+FileNameLoader:			db		'LOADER  BIN'			;11个字节的文件名字
+StringLoadedLoad:		db		'loaded the loader',0
+StringNotFindLoad:		db		'not find the loder',0
+StringLoadingLoader:	db		'.',0
 	
 ;空余字节填补及boot结束标志
 ;==================================================================================================
-	times	510-($-$$)	db	0
-	dw		0AA55H
+times	510-($-$$)	db	0
+dw		0AA55H

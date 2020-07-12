@@ -4,29 +4,30 @@
 
 ASM			= nasm
 IPATH		= ./include
-OUTPUT		= ../output
+OUTPUT		= ../output/boot
+IMGPATH		= ../output
 TARGET		= boot.bin loader.bin
 
 .PHONY : all clean
 
-all : $(TARGET) createImage image
+all : mkdir $(TARGET) image
 
-createImage : 
-	dd if=/dev/zero of=$(OUTPUT)/os.img bs=512 count=2880
+mkdir : 
+	mkdir -p $(OUTPUT)
 
 image : 
-	dd if=$(OUTPUT)/boot/boot.bin of=$(OUTPUT)/os.img bs=512 count=1 conv=notrunc
-	mount $(OUTPUT)/os.img /tmp -o loop
-	cp -f $(OUTPUT)/boot/loader.bin /tmp
+	dd if=$(OUTPUT)/boot.bin of=$(IMGPATH)/os.img bs=512 count=1 conv=notrunc
+	mount $(IMGPATH)/os.img /tmp -o loop
+	cp -f $(OUTPUT)/loader.bin /tmp
 	umount /tmp
 
-
+#使用循环遍历变量
 clean :
-	rm -f $(OUTPUT)/boot/*.bin
-	rm -f $(OUTPUT)/os.img
+	$(foreach var, $(TARGET), rm -f $(OUTPUT)/$(var))
+	rm -rf $(OUTPUT)
 
 boot.bin : boot.asm
-	$(ASM) -I$(IPATH) $< -o $(OUTPUT)/boot/$@
+	$(ASM) -I$(IPATH) $< -o $(OUTPUT)/$@
 
 loader.bin : loader.asm
-	$(ASM) -I$(IPATH) $< -o $(OUTPUT)/boot/$@
+	$(ASM) -I$(IPATH) $< -o $(OUTPUT)/$@

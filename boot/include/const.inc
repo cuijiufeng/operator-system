@@ -2,7 +2,12 @@
 ;一些常量信息
 ;========================================================================================================
 
-TOP_OF_STACK				equ		7c00H		;boot状态下的堆栈栈顶指针
+TOP_OF_STACK_BOOT			equ		7c00H		;boot的堆栈栈顶指针
+TOP_OF_STACK_LOADER			equ		0100H		;实模式下loader的栈顶指针
+MEMERY_STATE_BUFFER			equ		100000H		;内存信息
+PAGE_DIR_BASE				equ		101000H		;页目标录表开始1MB 
+PAGE_TBL_BASE				equ		102000H		;页表开始地址1MB+4KB
+
 BUFFER_ROOT_ADDRESS			equ		6000H		;把软盘根目录扇区内容读到此基地址
 BUFFER_ROOT_OFFSET			equ		0100H		;把软盘根目录扇区内容读到此偏移地址
 
