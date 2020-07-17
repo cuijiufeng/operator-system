@@ -3,7 +3,7 @@
 #==============================================================================
 
 ASM			= nasm
-IPATH		= ./include
+IPATH		= ./include/
 OUTPUT		= ../output/boot
 IMGPATH		= ../output
 TARGET		= boot.bin loader.bin

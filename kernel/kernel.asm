@@ -2,12 +2,24 @@
 ; kernel
 ;==================================================================================================
 
+%include	"kernel.inc"
 ;代码开始处
 ;==================================================================================================
-[section .code]
-	global _start					; 导出 _start
-	_start:							; 跳到这里来的时候，我们假设 gs 指向显存
-		mov ah,0CH					;黑底红字
-		mov al,'k'					;字符k
-		mov [gs:(80*2)*14+2*10],ax	;在14行10列打印字符k
-		jmp $
+;bss段(bss segment)通常是指用来存放程序中未初始化的全局变量的一块内存区域。
+[section .bss]
+;设置2KB的栈空间
+StackSapce	resb	2*1024		;resb伪指令与db,dw,dd伪指令类似。声明2*1024个字节的数据
+STACK_TOP:						;栈顶
+
+;代码段(text segment)通常是指用来存放程序执行代码的一块内存区域。
+[section .text]
+_start:
+	mov 	esp, STACK_TOP			;设置栈顶
+	sgdt 	[ds:gdt_ptr]			;sgdt指令。保存gdtr寄存器中的值到gdt_ptr内存地址中去
+	call	cstart
+	
+H:
+	hlt							;使程序停止运行，处理器进入暂停状态，不执行任何操作，不影响标志。
+	jmp	H						;当复位（外语：RESET）线上有复位信号、CPU响应非屏蔽中断、
+									;CPU响应可屏蔽中断3种情况之一时，CPU脱离暂停状态，执行HLT的下一条指令。
+		

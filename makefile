@@ -7,14 +7,14 @@ ASM			= nasm
 GCC			= gcc
 LD			= ld
 ASMARG		= -f elf
-GCARG		= -c
+GCCARG		= -c -m32
 LDARG		= -m elf_i386 -s -Ttext 0x30400
 
 IMGPATH		= ./output
-IPATH		= ./include
+IPATH		= ./include/
 SRCPATH		= ./kernel
 OUTPUT		= ./output/kernel
-TARGET		= kernel.o
+TARGET		= kernel.o cstart.o
 KERNELTARGET= kernel.bin
 
 .PHONY : all clean
@@ -44,6 +44,9 @@ clean :
 
 kernel.o : $(SRCPATH)/kernel.asm
 	$(ASM) $(ASMARG) -I$(IPATH) $< -o $(OUTPUT)/$@
+	
+cstart.o : $(SRCPATH)/cstart.c
+	$(GCC) $(GCCARG) -I$(IPATH) $< -o $(OUTPUT)/$@
 
 #makefile的foreach函数，作用是是循环遍历
 $(KERNELTARGET) : $(TARGET)
