@@ -17,9 +17,9 @@ mkdir :
 
 image : 
 	dd if=$(OUTPUT)/boot.bin of=$(IMGPATH)/os.img bs=512 count=1 conv=notrunc
-	mount $(IMGPATH)/os.img /tmp -o loop
-	cp -f $(OUTPUT)/loader.bin /tmp
-	umount /tmp
+	mount $(IMGPATH)/os.img /media/ -o loop
+	cp -f $(OUTPUT)/loader.bin /media/
+	umount $(IMGPATH)/os.img
 
 #使用循环遍历变量
 clean :

@@ -6,9 +6,16 @@ MAKE		= make
 ASM			= nasm
 GCC			= gcc
 LD			= ld
-ASMARG		= -f elf
-GCCARG		= -c -m32
-LDARG		= -m elf_i386 -s -Ttext 0x30400
+DEBUG		= debug
+ifdef		DEBUG
+	ASMARG		= -f elf
+	GCCARG		= -g -c -m32
+	LDARG		= -m elf_i386 -Ttext 0x30400
+else
+	ASMARG		= -f elf
+	GCCARG		= -c -m32
+	LDARG		= -m elf_i386 -s -Ttext 0x30400
+endif
 
 IMGPATH		= ./output
 IPATH		= ./include/
@@ -28,9 +35,9 @@ createimage :
 	dd if=/dev/zero of=$(IMGPATH)/os.img bs=512 count=2880
 
 image : 
-	mount $(IMGPATH)/os.img /tmp -o loop
-	cp -f $(OUTPUT)/kernel.bin /tmp
-	umount /tmp
+	mount $(IMGPATH)/os.img /media/ -o loop
+	cp -f $(OUTPUT)/kernel.bin /media/
+	umount $(IMGPATH)/os.img
 
 makeboot : 
 	cd boot && $(MAKE) all

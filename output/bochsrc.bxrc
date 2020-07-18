@@ -6,8 +6,8 @@
 megs: 32
 
 # filename of ROM images
-romimage: file=D:\bochs-2.6.10/BIOS-bochs-latest
-vgaromimage: file=D:\bochs-2.6.10/VGABIOS-lgpl-latest
+romimage: file=D:\Bochs-2.6.10/BIOS-bochs-latest
+vgaromimage: file=D:\Bochs-2.6.10/VGABIOS-lgpl-latest
 
 # what disk images will be used 
 floppya: 1_44=os.img, status=inserted
@@ -16,9 +16,9 @@ floppya: 1_44=os.img, status=inserted
 boot: a
 
 # where do we send log messages?
-log: bochsout.txt
+# log: bochsrc.txt
 
 # disable the mouse, since DLX is text only
 mouse: enabled=0
 
-keyboard: keymap=D:\bochs-2.6.10\keymaps/x11-pc-us.map
+keyboard: keymap=D:\Bochs-2.6.10\keymaps/x11-pc-us.map
