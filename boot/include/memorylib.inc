@@ -1,8 +1,8 @@
-; 2020Äê07ÔÂ12ÈÕ 09/33/34
-; ÔÚÊµÄ£Ê½ÏÂ»ñÈ¡ÄÚ´æĞÅÏ¢µÄÒ»Ğ©º¯Êıµ÷ÓÃ
+; 2020å¹´07æœˆ12æ—¥ 09/33/34
+; åœ¨å®æ¨¡å¼ä¸‹è·å–å†…å­˜ä¿¡æ¯çš„ä¸€äº›å‡½æ•°è°ƒç”¨
 ;========================================================================================================
 
-;»ñµÃÄÚ´æĞÅÏ¢£¬int 15HÖĞ¶Ï
+;è·å¾—å†…å­˜ä¿¡æ¯ï¼Œint 15Hä¸­æ–­
 ;-------------------------------------------------------------------------------------
 getMemeryInfo:
 	mov ax,cs
@@ -25,7 +25,7 @@ getMemeryInfo:
 	.over:
 	ret
 
-;¼ÆËãÄÚ´æ´óĞ¡
+;è®¡ç®—å†…å­˜å¤§å°
 ;-------------------------------------------------------------------------------------
 getMemerySize:
 	mov ax,cs
@@ -34,47 +34,47 @@ getMemerySize:
 	xor cx,cx
 	mov cl,[ds:_CheckMemeryNumber]
 	.loopSize:
-		cmp dword [es:di+16],1				;type Èç¹ûÀàĞÍ²»Îª1£¬Ôò±íÊ¾Îª²»¿ÉÓÃµÄÄÚ´æ
+		cmp dword [es:di+16],1				;type å¦‚æœç±»å‹ä¸ä¸º1ï¼Œåˆ™è¡¨ç¤ºä¸ºä¸å¯ç”¨çš„å†…å­˜
 		jne .continue
 		mov eax,[es:di]						;addrLow
 		add eax,[es:di+8]					;lengthLow
 		cmp eax,[ds:_MemerySize+9]			;addrLow+lengthLow>memerySize
 		jb .continue
-		mov [ds:_MemerySize+9],eax			;¿ÉÓÃµÄ×î´óÄÚ´æ
+		mov [ds:_MemerySize+9],eax			;å¯ç”¨çš„æœ€å¤§å†…å­˜
 		.continue:
 		add di,20
 	loop .loopSize
 	ret
 
-;´òÓ¡ÄÚ´æĞÅÏ¢
+;æ‰“å°å†…å­˜ä¿¡æ¯
 ;-------------------------------------------------------------------------------------
 disMemInfo:
 	mov ax,0B800H
 	mov es,ax
 	mov di,320H
-	mov bx,_CheckMemeryBuffer			;Êı¾İÔÚÕâ
-	mov cx,[ds:_CheckMemeryNumber]		;Ò»¹²ÓĞ¶àÉÙĞĞ
+	mov bx,_CheckMemeryBuffer			;æ•°æ®åœ¨è¿™
+	mov cx,[ds:_CheckMemeryNumber]		;ä¸€å…±æœ‰å¤šå°‘è¡Œ
 	.1:
 		push cx
-		mov cx,5							;´òÓ¡Ò»ĞĞÖĞµÄ5¸ö³ÉÔ±
+		mov cx,5							;æ‰“å°ä¸€è¡Œä¸­çš„5ä¸ªæˆå‘˜
 		.2:
-			mov eax,[ds:bx]						;È¡µ½Ò»¸ö³ÉÔ±
-			call displayFourByteData			;´òÓ¡Ò»¸ö³ÉÔ±
-			add bx,4							;ÏÂÒ»¸ö³ÉÔ±
+			mov eax,[ds:bx]						;å–åˆ°ä¸€ä¸ªæˆå‘˜
+			call displayFourByteData			;æ‰“å°ä¸€ä¸ªæˆå‘˜
+			add bx,4							;ä¸‹ä¸€ä¸ªæˆå‘˜
 		loop .2
 		pop cx
-		add di,60							;µ½ÏÂÒ»ĞĞ´òÓ¡
+		add di,60							;åˆ°ä¸‹ä¸€è¡Œæ‰“å°
 	loop .1
 	ret
 
-;´òÓ¡ÄÚ´æµÄ´óĞ¡
+;æ‰“å°å†…å­˜çš„å¤§å°
 ;-----------------------------------------------------------------------------------------------------	
 disMemSize:
 	mov ax,0B800H
 	mov es,ax
-	mov di,780H				;´òÓ¡µ½µÚ12ĞĞ
+	mov di,780H				;æ‰“å°åˆ°ç¬¬12è¡Œ
 	mov bx,_MemerySize
-	mov cx,9				;´òÓ¡'Mem Size:'×Ö·û£¬Ò»¹²ÓĞ9¸ö
+	mov cx,9				;æ‰“å°'Mem Size:'å­—ç¬¦ï¼Œä¸€å…±æœ‰9ä¸ª
 
 	mov ah,0FH
 	.displayMemSizeLoop:
@@ -82,7 +82,7 @@ disMemSize:
 		mov [es:di],ax
 		inc bx
 		add di,2
-	loop .displayMemSizeLoop	;´òÓ¡'Mem Size:'×Ö·û
-	mov eax,[ds:bx]			;»ñÈ¡_MemerySize+9µØÖ·µÄÊı¾İ
+	loop .displayMemSizeLoop	;æ‰“å°'Mem Size:'å­—ç¬¦
+	mov eax,[ds:bx]			;è·å–_MemerySize+9åœ°å€çš„æ•°æ®
 	call displayFourByteData
 	ret

@@ -6,6 +6,7 @@
 global	_start						;导出_start
 
 ;导入(声明)
-extern	gdt_ptr						;gdtr寄存器的值
+extern	GDT_PTR						;gdtr寄存器的值
 
-extern	cstart
+extern	cinit
+extern	IDT_PTR

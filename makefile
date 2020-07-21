@@ -1,60 +1,48 @@
-#2020ƒÍ07‘¬11»’ 21/42/08
-#»´≤ø
+#2020Âπ¥07Êúà11Êó• 21/42/08
+#ÂÖ®ÈÉ®
 #==============================================================================
 
-MAKE		= make
-ASM			= nasm
-GCC			= gcc
 LD			= ld
 DEBUG		= debug
 ifdef		DEBUG
-	ASMARG		= -f elf
-	GCCARG		= -g -c -m32
 	LDARG		= -m elf_i386 -Ttext 0x30400
 else
-	ASMARG		= -f elf
-	GCCARG		= -c -m32
 	LDARG		= -m elf_i386 -s -Ttext 0x30400
 endif
 
-IMGPATH		= ./output
-IPATH		= ./include/
-SRCPATH		= ./kernel
-OUTPUT		= ./output/kernel
-TARGET		= kernel.o cstart.o
-KERNELTARGET= kernel.bin
+OUTPUT		= ./output
+TARGET		= kernel.bin
+DEPENDENTSPATH	= ./boot ./kernel ./lib
 
 .PHONY : all clean
 
-all : mkdir createimage makeboot $(TARGET) $(KERNELTARGET) image
-
-mkdir : 
-	mkdir -p $(OUTPUT)
+all : createimage makedependents $(TARGET) image
 
 createimage : 
-	dd if=/dev/zero of=$(IMGPATH)/os.img bs=512 count=2880
+	dd if=/dev/zero of=$(OUTPUT)/os.img bs=512 count=2880
 
 image : 
-	mount $(IMGPATH)/os.img /media/ -o loop
+	mount $(OUTPUT)/os.img /media/ -o loop
 	cp -f $(OUTPUT)/kernel.bin /media/
-	umount $(IMGPATH)/os.img
+	umount $(OUTPUT)/os.img
 
-makeboot : 
-	cd boot && $(MAKE) all
+#makefileÁöÑforeachÂáΩÊï∞Ôºå‰ΩúÁî®ÊòØÊòØÂæ™ÁéØÈÅçÂéÜ
+makedependents : 
+	$(foreach depend, $(DEPENDENTSPATH), \
+		cd $(depend) && \
+		$(MAKE) all && \
+		cd ..; \
+	)
 
 clean : 
-	cd boot && $(MAKE) clean
-	$(foreach var, $(TARGET), rm -f $(OUTPUT)/$(var))
-	rm -f $(OUTPUT)/$(KERNELTARGET)
-	rm -f $(IMGPATH)/os.img
-	rm -rf $(OUTPUT)
+	$(foreach depend, $(DEPENDENTSPATH), \
+		cd $(depend) && \
+		$(MAKE) clean && \
+		cd ..; \
+	)
+	rm -f $(OUTPUT)/$(TARGET)
+	rm -f $(OUTPUT)/os.img
 
-kernel.o : $(SRCPATH)/kernel.asm
-	$(ASM) $(ASMARG) -I$(IPATH) $< -o $(OUTPUT)/$@
-	
-cstart.o : $(SRCPATH)/cstart.c
-	$(GCC) $(GCCARG) -I$(IPATH) $< -o $(OUTPUT)/$@
-
-#makefileµƒforeach∫Ø ˝£¨◊˜”√ « «—≠ª∑±È¿˙
-$(KERNELTARGET) : $(TARGET)
-	$(LD) $(LDARG) $(foreach var, $^, $(OUTPUT)/$(var)) -o $(OUTPUT)/$@
+#kernel.oÂú®ÈìæÊé•ÁöÑÊó∂ÂÄôÈúÄË¶ÅÊîæÂú®Á¨¨‰∏Ä‰ΩçÁΩÆÔºå‰∏çÁü•ÈÅì‰∏∫‰ªÄ‰πàÔºü
+$(TARGET) : ./output/kernel/kernel.o ./output/kernel/cinit.o ./output/lib/memlib.o ./output/kernel/i8259.o ./output/lib/klib.o
+	$(LD) $(LDARG) $^ -o $(OUTPUT)/$@

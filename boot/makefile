@@ -1,5 +1,5 @@
-#2020Äê07ÔÂ11ÈÕ 14/36/51
-#±àÒëbootÏà¹Ø
+#2020å¹´07æœˆ11æ—¥ 14/36/51
+#ç¼–è¯‘bootç›¸å…³
 #==============================================================================
 
 ASM			= nasm
@@ -21,9 +21,7 @@ image :
 	cp -f $(OUTPUT)/loader.bin /media/
 	umount $(IMGPATH)/os.img
 
-#Ê¹ÓÃÑ­»·±éÀú±äÁ¿
 clean :
-	$(foreach var, $(TARGET), rm -f $(OUTPUT)/$(var))
 	rm -rf $(OUTPUT)
 
 boot.bin : boot.asm

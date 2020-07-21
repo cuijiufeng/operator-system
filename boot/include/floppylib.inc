@@ -1,40 +1,40 @@
-;2020Äê07ÔÂ05ÈÕ 17/02/07
-;¶ÁÈ¡ÈíÅÌÓÃµÄº¯Êý³éÈ¡
+;2020å¹´07æœˆ05æ—¥ 17/02/07
+;è¯»å–è½¯ç›˜ç”¨çš„å‡½æ•°æŠ½å–
 ;========================================================================================================
 
-;¶ÁÈ¡Ò»¸öÉÈÇø(°Ñ´ÓaxºÅ¿ªÊ¼µÄcx¸öÉÈÇø¶ÁÈëµ½es:bxÖÐÈ¥)
-;½ÓÊÕµÄ²ÎÊý£¨es:bx	-->»º³åÇø	ax	-->ÉÈÇøºÅ	cx	-->¶ÁÈ¡ÉÈÇø¸öÊý£©
+;è¯»å–ä¸€ä¸ªæ‰‡åŒº(æŠŠä»Žaxå·å¼€å§‹çš„cxä¸ªæ‰‡åŒºè¯»å…¥åˆ°es:bxä¸­åŽ»)
+;æŽ¥æ”¶çš„å‚æ•°ï¼ˆes:bx	-->ç¼“å†²åŒº	ax	-->æ‰‡åŒºå·	cx	-->è¯»å–æ‰‡åŒºä¸ªæ•°ï¼‰
 ;--------------------------------------------------------------------------------------------------
 readSector:				
 	push ax
 	push cx
 	mov bp,sp
 
-	mov dl,[ds:BPB_SecPerTrk]	;Ã¿´ÅµÀÉÈÇøÊý
+	mov dl,[ds:BPB_SecPerTrk]	;æ¯ç£é“æ‰‡åŒºæ•°
 	div dl
-	push ax						;ÔÝ´æ³ý·¨½á¹ûµÄÉÌÓëÓàÊý
-	shr al,1					;ÉÌÓÒÒÆÒ»Î»ÎªÖùÃæºÅ
+	push ax						;æš‚å­˜é™¤æ³•ç»“æžœçš„å•†ä¸Žä½™æ•°
+	shr al,1					;å•†å³ç§»ä¸€ä½ä¸ºæŸ±é¢å·
 	mov ch,al
-	pop ax						;È¡³ö³ý·¨µÄÉÌÓëÓàÊý
-	and al,1					;ÉÌ²¢1Îª´ÅÍ·ºÅ
+	pop ax						;å–å‡ºé™¤æ³•çš„å•†ä¸Žä½™æ•°
+	and al,1					;å•†å¹¶1ä¸ºç£å¤´å·
 	mov dh,al
 	inc ah						
-	mov cl,ah					;ÓàÊý¼Ó1ÎªÆðÊ¼ÉÈÇøºÅ
+	mov cl,ah					;ä½™æ•°åŠ 1ä¸ºèµ·å§‹æ‰‡åŒºå·
 	mov dl,[ds:BS_DrvNum]
 	
 	mov ax,[ss:bp]
 	LOOP_READ_SECTOR_FAIL:
-		mov ah,02h					;2ºÅ¹¦ÄÜ
+		mov ah,02h					;2å·åŠŸèƒ½
 		int 13H
-	jc LOOP_READ_SECTOR_FAIL		;Èç¹û¶ÁÈ¡Ê§°Ü£¬Ôòcf±»ÖÃ1
+	jc LOOP_READ_SECTOR_FAIL		;å¦‚æžœè¯»å–å¤±è´¥ï¼Œåˆ™cfè¢«ç½®1
 	
 	pop cx
 	pop ax
 	ret
 ;-----------------------------------------------------------------------------------------------------
 
-;¸ø¶¨Ò»¸öÎÄ¼þÄÚÈÝµÄÉÈÇøºÅ£¬²éÕÒÊÇ·ñ»¹ÓÐºó¼ÌÉÈÇø
-;½ÓÊÕµÄ²ÎÊý(ax	-->	ÉÈÇøºÅ		ax	-->	ºó¼ÌÉÈÇøºÅ)
+;ç»™å®šä¸€ä¸ªæ–‡ä»¶å†…å®¹çš„æ‰‡åŒºå·ï¼ŒæŸ¥æ‰¾æ˜¯å¦è¿˜æœ‰åŽç»§æ‰‡åŒº
+;æŽ¥æ”¶çš„å‚æ•°(ax	-->	æ‰‡åŒºå·		ax	-->	åŽç»§æ‰‡åŒºå·)
 ;--------------------------------------------------------------------------------------------------
 readFATValue:
 		push es
@@ -42,46 +42,46 @@ readFATValue:
 		
 		mov dx,BUFFER_FAT_ADDRESS
 		mov es,dx
-		mov byte [ds:EvenOrOdd],0				;¿ªÊ¼ÈÏÎªËüÊÇÅ¼Êý
+		mov byte [ds:EvenOrOdd],0				;å¼€å§‹è®¤ä¸ºå®ƒæ˜¯å¶æ•°
 		
 		mov bx,3
 		mul bx
 		mov bx,2
-		div bx									;ÉÈÇøºÅ*3/2=FATÏîÔÚFAT±íÖÐµÄÆ«ÒÆ
-		cmp dx,0								;Èç¹ûÓàÊýÎª0£¬ÔòËüÊÇÅ¼ÊýÏî
+		div bx									;æ‰‡åŒºå·*3/2=FATé¡¹åœ¨FATè¡¨ä¸­çš„åç§»
+		cmp dx,0								;å¦‚æžœä½™æ•°ä¸º0ï¼Œåˆ™å®ƒæ˜¯å¶æ•°é¡¹
 	je EVEN_NUMBER
-		mov byte [ds:EvenOrOdd],1				;ÆæÊý
+		mov byte [ds:EvenOrOdd],1				;å¥‡æ•°
 	EVEN_NUMBER:
 		xor dx,dx
-		mov bx,[ds:BPB_BytsPerSec]				;Æ«ÒÆ/512=ËùÔÚÉÈÇø(ÓàÊýÎªÏà¶ÔÓÚËùÔÚÉÈÇøÖÐµÄÆ«ÒÆ)
+		mov bx,[ds:BPB_BytsPerSec]				;åç§»/512=æ‰€åœ¨æ‰‡åŒº(ä½™æ•°ä¸ºç›¸å¯¹äºŽæ‰€åœ¨æ‰‡åŒºä¸­çš„åç§»)
 		div bx
 		push dx
-		add ax,FAT_SECTOR_START					;ÉÈÇøºÅ
-		mov cx,2								;Òª¶ÁµÄÉÈÇø¸öÊý,FATÏîÓÐ¿ÉÄÜÊÇ¿çÉÈÇøµÄ
+		add ax,FAT_SECTOR_START					;æ‰‡åŒºå·
+		mov cx,2								;è¦è¯»çš„æ‰‡åŒºä¸ªæ•°,FATé¡¹æœ‰å¯èƒ½æ˜¯è·¨æ‰‡åŒºçš„
 		mov bx,BUFFER_FAT_OFFSET
-		call readSector							;¶ÁFATÉÈÇø
+		call readSector							;è¯»FATæ‰‡åŒº
 		pop dx
-		add bx,dx								;¼ÓÉÏÏà¶ÔÓÚËùÕ¼ÉÈÇøÖÐµÄÆ«ÒÆ¾ÍÊÇÎÒÃÇËùÒªÕÒµÄÊý¾ÝµÄµØÖ·
+		add bx,dx								;åŠ ä¸Šç›¸å¯¹äºŽæ‰€å æ‰‡åŒºä¸­çš„åç§»å°±æ˜¯æˆ‘ä»¬æ‰€è¦æ‰¾çš„æ•°æ®çš„åœ°å€
 		mov ax,[es:bx]
 		pop bx
-		pop es									;»¹Ô­es,bxÖµ
+		pop es									;è¿˜åŽŸes,bxå€¼
 		cmp byte [ds:EvenOrOdd],0
 	jne ODD
 	EVEN:
-		and ax,0FFFH							;ÈÓµô¸ß4Î»
+		and ax,0FFFH							;æ‰”æŽ‰é«˜4ä½
 		ret
 	ODD:
-		shr ax,4								;ÈÓµôµÍ4Î»
+		shr ax,4								;æ‰”æŽ‰ä½Ž4ä½
 		ret
 ;--------------------------------------------------------------------------------------------------
 
-;¹Ø±ÕÈíÇýÂí´ï£¬²»È»ÈíÇýµÆ»áÒ»Ö±ÁÁ×Å	
+;å…³é—­è½¯é©±é©¬è¾¾ï¼Œä¸ç„¶è½¯é©±ç¯ä¼šä¸€ç›´äº®ç€	
 ;-----------------------------------------------------------------------------------------------------
 killMotor:
 		push dx
 		mov dx,03F2H
 		mov al,0
-		out dx,al			;Íù03F2H¶Ë¿ÚÐ´ÈëalÖÐµÄÖµ
+		out dx,al			;å¾€03F2Hç«¯å£å†™å…¥alä¸­çš„å€¼
 		pop dx
 		ret
 ;-----------------------------------------------------------------------------------------------------

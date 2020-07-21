@@ -1,42 +1,42 @@
-; 2020Äê07ÔÂ11ÈÕ 17/44/59
-; loader¶Ákernel½øÄÚ´æ
-;1.¼ÓÔØÄÚºË(kernel)µ½ÄÚ´æ
-;2.ÌøÈë±£»¤Ä£Ê½
-;	1)ÔÚÊµÄ£Ê½ÏÂ»ñÈ¡ÄÚ´æĞÅÏ¢¼°ÄÚ´æ´óĞ¡£¬Îª±£»¤Ä£Ê½ÏÂ¿ªÆô·ÖÒ³»úÖÆ×÷×¼±¸
-;	2)ÌøÈë±£»¤Ä£Ê½
-;	3)¿ªÆô·ÖÒ³»úÖÆ
-;3.ÖØĞÂ·ÅÖÃÄÚºË
-;4.ÏòÄÚºË½»³ö¿ØÖÆÈ¨
+; 2020å¹´07æœˆ11æ—¥ 17/44/59
+; loaderè¯»kernelè¿›å†…å­˜
+;1.åŠ è½½å†…æ ¸(kernel)åˆ°å†…å­˜
+;2.è·³å…¥ä¿æŠ¤æ¨¡å¼
+;	1)åœ¨å®æ¨¡å¼ä¸‹è·å–å†…å­˜ä¿¡æ¯åŠå†…å­˜å¤§å°ï¼Œä¸ºä¿æŠ¤æ¨¡å¼ä¸‹å¼€å¯åˆ†é¡µæœºåˆ¶ä½œå‡†å¤‡
+;	2)è·³å…¥ä¿æŠ¤æ¨¡å¼
+;	3)å¼€å¯åˆ†é¡µæœºåˆ¶
+;3.é‡æ–°æ”¾ç½®å†…æ ¸
+;4.å‘å†…æ ¸äº¤å‡ºæ§åˆ¶æƒ
 ;==================================================================================================
 
 org	0100H				
-;µ¼Èë¹ØÓÚÔØÈëÎÄ¼şµØÖ·µÄÒ»Ğ©³£Á¿Öµ
+;å¯¼å…¥å…³äºè½½å…¥æ–‡ä»¶åœ°å€çš„ä¸€äº›å¸¸é‡å€¼
 %include "const.inc"			
-;µ¼ÈëÃèÊö·û½á¹¹¼°Æä³£Á¿Öµ
+;å¯¼å…¥æè¿°ç¬¦ç»“æ„åŠå…¶å¸¸é‡å€¼
 %include "pm.inc"			
 jmp LABEL_START
-;µ¼Èëdos¿ÉÒÔÊ¶±ğµÄBPBµÈÍ·ĞÅÏ¢¼°Ò»Ğ©¹ØÓÚÈíÅÌµÄ³£Á¿Öµ
+;å¯¼å…¥doså¯ä»¥è¯†åˆ«çš„BPBç­‰å¤´ä¿¡æ¯åŠä¸€äº›å…³äºè½¯ç›˜çš„å¸¸é‡å€¼
 %include "fat12hdr.inc"	
 
-;ÃèÊö·û±í
+;æè¿°ç¬¦è¡¨
 ;==================================================================================================
 LABEL_GDT:			Descriptor		0,			0,				0
-LABEL_DESC_FLAT_C:	Descriptor		0,			0FFFFFH,		DA_32 | DA_LIMIT_4K | DA_CR		;0~4GÖ»Ö´ĞĞ¶Î
-LABEL_DESC_FLAT_RW:	Descriptor		0,			0FFFFFH,		DA_32 | DA_LIMIT_4K | DA_DRW	;0~4G¿É¶ÁĞ´¶Î
+LABEL_DESC_FLAT_C:	Descriptor		0,			0FFFFFH,		DA_32 | DA_LIMIT_4K | DA_CR		;0~4Gåªæ‰§è¡Œæ®µ
+LABEL_DESC_FLAT_RW:	Descriptor		0,			0FFFFFH,		DA_32 | DA_LIMIT_4K | DA_DRW	;0~4Gå¯è¯»å†™æ®µ
 LABEL_VIDEO:		Descriptor		0B8000H,	0FFFFH,			DA_DRW | DA_DPL3
 	
 ;GDTR
 GDT_LEN	equ		$ - LABEL_GDT
 GdtPtr:	dw		GDT_LEN - 1
 		dd		BASE_OF_LOADER_PHY_ADDR + LABEL_GDT
-		;ÒÔÇ°µÄÊ±ºòÔÚ³ÌĞòÀïĞŞ¸ÄGdtPtrµÄÖµ£¬ÒòÎªÎÒÃÇ²»ÖªµÀ¶ÎµØÖ·£¬¶øÏÖÔÚloaderÊÇÎÒÃÇ×Ô¼º¼ÓÔØ½øÄÚ´æµÄ£¬ËùÒÔÎÒÃÇÖªµÀ¶ÎµØÖ·
+		;ä»¥å‰çš„æ—¶å€™åœ¨ç¨‹åºé‡Œä¿®æ”¹GdtPtrçš„å€¼ï¼Œå› ä¸ºæˆ‘ä»¬ä¸çŸ¥é“æ®µåœ°å€ï¼Œè€Œç°åœ¨loaderæ˜¯æˆ‘ä»¬è‡ªå·±åŠ è½½è¿›å†…å­˜çš„ï¼Œæ‰€ä»¥æˆ‘ä»¬çŸ¥é“æ®µåœ°å€
 			
-;Ñ¡Ôñ×Ó
+;é€‰æ‹©å­
 SELECTOR_FLAT_C		equ		LABEL_DESC_FLAT_C - LABEL_GDT
 SELECTOR_FLOAT_RW	equ		LABEL_DESC_FLAT_RW - LABEL_GDT
 SELECTOR_VIDEO		equ		LABEL_VIDEO - LABEL_GDT + SA_RPL3
 
-;´úÂë¿ªÊ¼´¦
+;ä»£ç å¼€å§‹å¤„
 ;==================================================================================================		
 LABEL_START:
 	mov ax,cs
@@ -44,31 +44,31 @@ LABEL_START:
 	mov ss,ax
 	mov sp,TOP_OF_STACK_LOADER
 
-	call getMemeryInfo						;»ñµÃÄÚ´æĞÅÏ¢
-	call getMemerySize						;¼ÆËãÄÚ´æµÄ´óĞ¡
+	call getMemeryInfo						;è·å¾—å†…å­˜ä¿¡æ¯
+	call getMemerySize						;è®¡ç®—å†…å­˜çš„å¤§å°
 		
 	mov si,_MemeryInfoTableHead
 	mov di,280H
-	call displayString						;´òÓ¡ÄÚ´æĞÅÏ¢±íµÄ±íÍ·
+	call displayString						;æ‰“å°å†…å­˜ä¿¡æ¯è¡¨çš„è¡¨å¤´
 		
-	call disMemInfo							;´òÓ¡ÄÚ´æĞÅÏ¢
-	call disMemSize							;´òÓ¡ÄÚ´æµÄ´óĞ¡
+	call disMemInfo							;æ‰“å°å†…å­˜ä¿¡æ¯
+	call disMemSize							;æ‰“å°å†…å­˜çš„å¤§å°
 
-	;ÔØÈëÄÚºË
+	;è½½å…¥å†…æ ¸
 	mov ax,BUFFER_ROOT_ADDRESS
 	mov es,ax
-	mov ax,ROOT_DERCOTRY_START				;Òª¶ÁÆğÊ¼ÉÈÇøºÅ
+	mov ax,ROOT_DERCOTRY_START				;è¦è¯»èµ·å§‹æ‰‡åŒºå·
 
 	TRAVERSE_THE_ROOT_SECTOR:
 		mov bx,BUFFER_ROOT_OFFSET
 		mov cx,1
-		call readSector						;¶ÁÉÈÇø
-		call findTheKernel					;Ñ°ÕÒKernelÎÄ¼ş
-		cmp cx,1							;ÅĞ¶ÏÊÇ·ñÕÒµ½ÎÄ¼ş
+		call readSector						;è¯»æ‰‡åŒº
+		call findTheKernel					;å¯»æ‰¾Kernelæ–‡ä»¶
+		cmp cx,1							;åˆ¤æ–­æ˜¯å¦æ‰¾åˆ°æ–‡ä»¶
 		je FIND_THE_LOADER_FILE
-		inc ax								;ÏÂÒ»¸öÉÈÇø
-		dec word [ds:RootDirctoryCount]		;¸ùÄ¿Â¼ÉÈÇøµÄ¸öÊı
-		cmp word [ds:RootDirctoryCount],0	;¸ùÄ¿Â¼ÉÈÇøÊÇ·ñÒÑ¾­±éÀúÍê
+		inc ax								;ä¸‹ä¸€ä¸ªæ‰‡åŒº
+		dec word [ds:RootDirctoryCount]		;æ ¹ç›®å½•æ‰‡åŒºçš„ä¸ªæ•°
+		cmp word [ds:RootDirctoryCount],0	;æ ¹ç›®å½•æ‰‡åŒºæ˜¯å¦å·²ç»éå†å®Œ
 	jne TRAVERSE_THE_ROOT_SECTOR
 		
 	NOT_FIND_THE_LOADER_FILE:
@@ -77,98 +77,98 @@ LABEL_START:
 	call displayString
 	jmp $
 		
-	;ÕÒµ½kernelÎÄ¼ş
+	;æ‰¾åˆ°kernelæ–‡ä»¶
 	FIND_THE_LOADER_FILE:
-	add bx,01AH							;ÎÄ¼şÃèÊöÌõÄ¿µÄDIR_FstClusÊôĞÔ£¬Ëü¼ÇÂ¼ÁËÎÄ¼şÄÚÈİÔÚÄÇ¸öÉÈÇø
-	mov ax,[es:bx]						;Ôİ´æ
-	mov dx,BASE_OF_KERNEL				;°ÑÎÄ¼şµÄÄÚÈİ¼ÓÔØµ½Õâ¸öµØÖ·£¬»ùµØÖ·
+	add bx,01AH							;æ–‡ä»¶æè¿°æ¡ç›®çš„DIR_FstCluså±æ€§ï¼Œå®ƒè®°å½•äº†æ–‡ä»¶å†…å®¹åœ¨é‚£ä¸ªæ‰‡åŒº
+	mov ax,[es:bx]						;æš‚å­˜
+	mov dx,BASE_OF_KERNEL				;æŠŠæ–‡ä»¶çš„å†…å®¹åŠ è½½åˆ°è¿™ä¸ªåœ°å€ï¼ŒåŸºåœ°å€
 	mov es,dx
-	mov bx,OFFSET_OF_KERNEL				;°ÑÎÄ¼şµÄÄÚÈİ¼ÓÔØµ½Õâ¸öµØÖ·£¬Æ«ÒÆµØÖ·
+	mov bx,OFFSET_OF_KERNEL				;æŠŠæ–‡ä»¶çš„å†…å®¹åŠ è½½åˆ°è¿™ä¸ªåœ°å€ï¼Œåç§»åœ°å€
 
 	mov di,140H
-	;´ËÑ­»·¶ÁÈ¡kernelÄÚÈİµ½ÄÚ´æ²¢ÇÒ¶ÁÈ¡FATÉÈÇø£¬ÔÚFATÉÈÇøÖĞ²éÕÒkernelÎÄ¼şÊÇ·ñ»¹ÓĞºó¼ÌÉÈÇø
+	;æ­¤å¾ªç¯è¯»å–kernelå†…å®¹åˆ°å†…å­˜å¹¶ä¸”è¯»å–FATæ‰‡åŒºï¼Œåœ¨FATæ‰‡åŒºä¸­æŸ¥æ‰¾kernelæ–‡ä»¶æ˜¯å¦è¿˜æœ‰åç»§æ‰‡åŒº
 	LOOP_LOADING_KERNEL_FILE:
 		push ax
-		add ax,DATA_SECTOR_START		;ÎÄ¼şÄÚÈİµÄÉÈÇøºÅ
-		mov cx,1						;¶ÁÒ»¸öÉÈÇø
-		call readSector					;¶ÁÎÄ¼şµÄÄÚÈİ 
+		add ax,DATA_SECTOR_START		;æ–‡ä»¶å†…å®¹çš„æ‰‡åŒºå·
+		mov cx,1						;è¯»ä¸€ä¸ªæ‰‡åŒº
+		call readSector					;è¯»æ–‡ä»¶çš„å†…å®¹ 
 		mov si,StringLoadingkernel
 		call displayString
 		pop ax
-		call readFATValue				;¶ÁÈ¡FATÖµ
-		cmp ax,0FF7H					;Èç¹û´óÓÚµÈÓÚ0FF7H¾ÍÍ£ÏÂÀ´
+		call readFATValue				;è¯»å–FATå€¼
+		cmp ax,0FF7H					;å¦‚æœå¤§äºç­‰äº0FF7Hå°±åœä¸‹æ¥
 		jnb LOAD_KERNEL_OVER
-		add bx,512						;»º³åÇø
+		add bx,512						;ç¼“å†²åŒº
 	jmp LOOP_LOADING_KERNEL_FILE
 		
-	;KernelÎÄ¼şÍêÈ«ÔØÈëÄÚ´æÖ®ºó×ªÈ¥Ö´ĞĞKernelÎÄ¼ş
+	;Kernelæ–‡ä»¶å®Œå…¨è½½å…¥å†…å­˜ä¹‹åè½¬å»æ‰§è¡ŒKernelæ–‡ä»¶
 	LOAD_KERNEL_OVER:
 	call killMotor
 	mov si,StringLoadedKernel
 	mov di,1E0H
 	call displayString
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	;×¼±¸½øÈë±£»¤Ä£Ê½
-	;Ö±½Ó´Ó¼ÓÔØgdtr¿ªÊ¼
-	lgdt	[ds:GdtPtr]		;¼ÓÔØgdtr
-	cli						;¹ØÖĞ¶Ï
+	;å‡†å¤‡è¿›å…¥ä¿æŠ¤æ¨¡å¼
+	;ç›´æ¥ä»åŠ è½½gdtrå¼€å§‹
+	lgdt	[ds:GdtPtr]		;åŠ è½½gdtr
+	cli						;å…³ä¸­æ–­
 		
 	in al,92H
 	or al,00000010b
-	out 92H,al				;´ò¿ªµØÖ·ÏßA20
+	out 92H,al				;æ‰“å¼€åœ°å€çº¿A20
 		
 	mov eax,cr0
 	or eax,1
-	mov cr0,eax				;ĞŞ¸Ä¼Ä´æÆ÷ÖĞ±£»¤Ä£Ê½±êÖ¾Î»
+	mov cr0,eax				;ä¿®æ”¹å¯„å­˜å™¨ä¸­ä¿æŠ¤æ¨¡å¼æ ‡å¿—ä½
 		
-	;ÌøÈë±£»¤Ä£Ê½£¬0~4GÖ´ĞĞ¶ÎÑ¡Ôñ×Ó:(loader»ùµØÖ·*10H+LABEL_PM_START±êºÅÆ«ÒÆµØÖ·)
+	;è·³å…¥ä¿æŠ¤æ¨¡å¼ï¼Œ0~4Gæ‰§è¡Œæ®µé€‰æ‹©å­:(loaderåŸºåœ°å€*10H+LABEL_PM_STARTæ ‡å·åç§»åœ°å€)
 	jmp dword	SELECTOR_FLAT_C:(BASE_OF_LOADER_PHY_ADDR+LABEL_PM_START)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;--------------------------------------------------------------------------------------------------
-;Ñ°ÕÒKernelÎÄ¼ş(cx==0	Ã»ÓĞÕÒµ½ÎÄ¼ş		cx==1	ÕÒµ½ÎÄ¼ş		es:bx	Ö¸ÏòÎÄ¼şÃèÊöÌõÄ¿)
+;å¯»æ‰¾Kernelæ–‡ä»¶(cx==0	æ²¡æœ‰æ‰¾åˆ°æ–‡ä»¶		cx==1	æ‰¾åˆ°æ–‡ä»¶		es:bx	æŒ‡å‘æ–‡ä»¶æè¿°æ¡ç›®)
 findTheKernel:
-	mov cx,THE_SECTOR_FILE_COUNT			;Ò»¸öÉÈÇøÓĞ16¸öÎÄ¼şÌõÄ¿ÃèÊö·û
+	mov cx,THE_SECTOR_FILE_COUNT			;ä¸€ä¸ªæ‰‡åŒºæœ‰16ä¸ªæ–‡ä»¶æ¡ç›®æè¿°ç¬¦
 	TRAVERSE_FILE_ENTRY:
 		push cx
-		mov cx,CHARLENGTH_OF_FILE_NAME		;ÎÄ¼şµÄÃû×ÖÒ»¹²ÓĞ11¸ö×Ö·û
-		mov si,FileNameKernel				;ÎÄ¼şÃû×Ö×Ö·û´®µÄÆ«ÒÆµØÖ·
+		mov cx,CHARLENGTH_OF_FILE_NAME		;æ–‡ä»¶çš„åå­—ä¸€å…±æœ‰11ä¸ªå­—ç¬¦
+		mov si,FileNameKernel				;æ–‡ä»¶åå­—å­—ç¬¦ä¸²çš„åç§»åœ°å€
 		TRAVERSE_FILE_CHAR:
 			mov dh,[es:bx]
 			mov dl,[ds:si]
-			cmp dh,dl						;×Ö·û±È½Ï
-			jne	CONTINUE_TRAVERSE_FILE_ENTRY	;ÓĞÒ»¸ö×Ö·û²»ÏàÍ¬¾Í²»ÊÇÒªÕÒµÄÎÄ¼ş
+			cmp dh,dl						;å­—ç¬¦æ¯”è¾ƒ
+			jne	CONTINUE_TRAVERSE_FILE_ENTRY	;æœ‰ä¸€ä¸ªå­—ç¬¦ä¸ç›¸åŒå°±ä¸æ˜¯è¦æ‰¾çš„æ–‡ä»¶
 			inc bx
-			inc si							;ÏÂÒ»¸ö×Ö·û
+			inc si							;ä¸‹ä¸€ä¸ªå­—ç¬¦
 		loop TRAVERSE_FILE_CHAR
-		and bx,0FFE0H					;Ö¸ÏòÎÄ¼şÃèÊöÌõÄ¿µÄ¿ªÊ¼
+		and bx,0FFE0H					;æŒ‡å‘æ–‡ä»¶æè¿°æ¡ç›®çš„å¼€å§‹
 		pop cx
-		mov cx,1						;±ê¼ÇÕÒµ½ÎÄ¼ş
+		mov cx,1						;æ ‡è®°æ‰¾åˆ°æ–‡ä»¶
 		ret
 		CONTINUE_TRAVERSE_FILE_ENTRY:
-		and bx,0FFE0H					;ÈÃbxÒÆµ½ÎÄ¼şÃèÊö·ûÌõÄ¿µÄ¿ªÍ·
-		add bx,32						;ÏÂÒ»¸öÎÄ¼şÃèÊöÌõÄ¿
+		and bx,0FFE0H					;è®©bxç§»åˆ°æ–‡ä»¶æè¿°ç¬¦æ¡ç›®çš„å¼€å¤´
+		add bx,32						;ä¸‹ä¸€ä¸ªæ–‡ä»¶æè¿°æ¡ç›®
 		pop cx
 	loop TRAVERSE_FILE_ENTRY
-	mov cx,0								;±ê¼ÇÃ»ÓĞÕÒµ½ÎÄ¼ş
+	mov cx,0								;æ ‡è®°æ²¡æœ‰æ‰¾åˆ°æ–‡ä»¶
 	ret
 
-;µ¼Èëº¯Êı¼°¶¨ÒåÒ»Ğ©±äÁ¿
+;å¯¼å…¥å‡½æ•°åŠå®šä¹‰ä¸€äº›å˜é‡
 ;==================================================================================================
 %include	"memorylib.inc"
-%include	"lib.inc"							;°üº¬´òÓ¡ÄÚ´æĞÅÏ¢µÄº¯Êı
+%include	"lib.inc"							;åŒ…å«æ‰“å°å†…å­˜ä¿¡æ¯çš„å‡½æ•°
 %include	"floppylib.inc"
-RootDirctoryCount:		dw		14							;224*32/512=14	BPB_RootEntCnt*32/BPB_BytsPerSec=14	¸ùÄ¿Â¼ÇøµÄÉÈÇø¸öÊı
-EvenOrOdd:				db		0							;ÆæÊı»¹ÊÇÅ¼Êı
-FileNameKernel:			db		'KERNEL  BIN'				;11¸ö×Ö½ÚµÄÎÄ¼şÃû×Ö
+RootDirctoryCount:		dw		14							;224*32/512=14	BPB_RootEntCnt*32/BPB_BytsPerSec=14	æ ¹ç›®å½•åŒºçš„æ‰‡åŒºä¸ªæ•°
+EvenOrOdd:				db		0							;å¥‡æ•°è¿˜æ˜¯å¶æ•°
+FileNameKernel:			db		'KERNEL  BIN'				;11ä¸ªå­—èŠ‚çš„æ–‡ä»¶åå­—
 StringLoadedKernel:		db		'loaded the kernel',0
 StringNotFindKernel:	db		'not find the kernel',0
 StringLoadingkernel:	db		'.',0
 
-;32Î»´úÂë¶Î£¬ÓÉÊµÄ£Ê½ÌøÈë.±£»¤Ä£Ê½ÏÂ
+;32ä½ä»£ç æ®µï¼Œç”±å®æ¨¡å¼è·³å…¥.ä¿æŠ¤æ¨¡å¼ä¸‹
 ;==================================================================================================
 [section .s32]
-ALIGN	32								;32¸ö×Ö½Ú¶ÔÆë
+ALIGN	32								;32ä¸ªå­—èŠ‚å¯¹é½
 [BITS 32]
 LABEL_PM_START:
 	mov ax,SELECTOR_VIDEO
@@ -180,28 +180,28 @@ LABEL_PM_START:
 	mov fs,ax
 	mov esp,TOP_OF_STACK
 		
-	call setupPageing				;¿ªÆô·ÖÒ³»úÖÆ
+	call setupPageing				;å¼€å¯åˆ†é¡µæœºåˆ¶
 
-	call initKernel					;ÖØĞÂ·ÅÖÃÄÚºËkernel
+	call initKernel					;é‡æ–°æ”¾ç½®å†…æ ¸kernel
 		
-	jmp SELECTOR_FLAT_C:KERNEL_ENTRY_POINT_PHY_ADDR	;ÌøÈëÄÚºË,ÏòÄÚºË½»³ö¿ØÖÆÈ¨
+	jmp SELECTOR_FLAT_C:KERNEL_ENTRY_POINT_PHY_ADDR	;è·³å…¥å†…æ ¸,å‘å†…æ ¸äº¤å‡ºæ§åˆ¶æƒ
 
-;¿ªÆô·ÖÒ³»úÖÆ.Îª¼ò»¯´¦Àí, ËùÓĞÏßĞÔµØÖ·¶ÔÓ¦ÏàµÈµÄÎïÀíµØÖ·. ²¢ÇÒ²»¿¼ÂÇÄÚ´æ¿Õ¶´.
+;å¼€å¯åˆ†é¡µæœºåˆ¶.ä¸ºç®€åŒ–å¤„ç†, æ‰€æœ‰çº¿æ€§åœ°å€å¯¹åº”ç›¸ç­‰çš„ç‰©ç†åœ°å€. å¹¶ä¸”ä¸è€ƒè™‘å†…å­˜ç©ºæ´.
 ;-----------------------------------------------------------------------------------------------------
 setupPageing:
 	xor edx,edx
-	mov eax,[ds:MEMERY_SIZE+9]				;»ñµÃÄÚ´æ´óĞ¡
-	mov ebx,400000H							;Ò»¸öÒ³±í¿ÉÒÔÑ°Ö·4MB
+	mov eax,[ds:MEMERY_SIZE+9]				;è·å¾—å†…å­˜å¤§å°
+	mov ebx,400000H							;ä¸€ä¸ªé¡µè¡¨å¯ä»¥å¯»å€4MB
 	div ebx
-	cmp edx,0								;Èç¹ûÓàÊı²»ÎªÁã£¬ÔòĞèÒª¼ÓÒ»¸öÒ³±í
-	je .isZero								;32MBÄÚ´æµÄÇé¿öÏÂ·Ö8Ò³
+	cmp edx,0								;å¦‚æœä½™æ•°ä¸ä¸ºé›¶ï¼Œåˆ™éœ€è¦åŠ ä¸€ä¸ªé¡µè¡¨
+	je .isZero								;32MBå†…å­˜çš„æƒ…å†µä¸‹åˆ†8é¡µ
 .notZero:
 	inc eax
 .isZero:
-	push eax								;Ôİ´æĞèÒª³õÊ¼»¯µÄÒ³±í¸öÊı
+	push eax								;æš‚å­˜éœ€è¦åˆå§‹åŒ–çš„é¡µè¡¨ä¸ªæ•°
 		
-	;³õÊ¼»¯Ò³Ä¿Â¼
-	mov cx,ax										;Ñ­»·´ÎÊı
+	;åˆå§‹åŒ–é¡µç›®å½•
+	mov cx,ax										;å¾ªç¯æ¬¡æ•°
 	mov ax,SELECTOR_FLOAT_RW
 	mov es,ax
 	mov edi,PAGE_DIR_BASE
@@ -212,7 +212,7 @@ setupPageing:
 		add edi,4
 	loop .loopDirFor
 			
-	;³õÊ¼»¯ËùÓĞÒ³±í
+	;åˆå§‹åŒ–æ‰€æœ‰é¡µè¡¨
 	pop eax
 	mov ebx,1024
 	mul ebx
@@ -227,39 +227,39 @@ setupPageing:
 		add edi,4
 	loop .loopTblFor
 			
-	mov eax,PAGE_DIR_BASE				;¿ªÆô·ÖÒ³»úÖÆ		
+	mov eax,PAGE_DIR_BASE				;å¼€å¯åˆ†é¡µæœºåˆ¶		
 	mov cr3,eax
 	mov eax,cr0
 	or eax,80000000H
 	mov cr0,eax
 	ret
 
-;°Ñkernel¼ÓÔØµ½ÕıÈ·µÄÎ»ÖÃ.ÕÒ³öÃ¿¸öprogream header£¬¸ù¾İÆäĞÅÏ¢½øĞĞÄÚ´æ¸´ÖÆ
+;æŠŠkernelåŠ è½½åˆ°æ­£ç¡®çš„ä½ç½®.æ‰¾å‡ºæ¯ä¸ªprogream headerï¼Œæ ¹æ®å…¶ä¿¡æ¯è¿›è¡Œå†…å­˜å¤åˆ¶
 ;-----------------------------------------------------------------------------------------------------
 initKernel:
 	xor ecx,ecx
-	mov cx,[ds:BASE_OF_KERNEL_FILE_PHY_ADDR+2Ch]	;program header¸öÊı						e_phnum-->cx
-	movzx	ecx, cx									;°ÑcxÖĞÖµÀ©Õ¹Á½¸ö×Ö½Ú×°Èëecx
-	mov esi,BASE_OF_KERNEL_FILE_PHY_ADDR			;kernelÎÄ¼şÔÚÄÚ´æÖĞµÄ¿ªÊ¼´¦
-	add esi,[ds:BASE_OF_KERNEL_FILE_PHY_ADDR+1Ch]	;program header tableÔÚÎÄ¼şÖĞµÄÆ«ÒÆÁ¿	e_phoff-->esi	
+	mov cx,[ds:BASE_OF_KERNEL_FILE_PHY_ADDR+2Ch]	;program headerä¸ªæ•°						e_phnum-->cx
+	movzx	ecx, cx									;æŠŠcxä¸­å€¼æ‰©å±•ä¸¤ä¸ªå­—èŠ‚è£…å…¥ecx
+	mov esi,BASE_OF_KERNEL_FILE_PHY_ADDR			;kernelæ–‡ä»¶åœ¨å†…å­˜ä¸­çš„å¼€å§‹å¤„
+	add esi,[ds:BASE_OF_KERNEL_FILE_PHY_ADDR+1Ch]	;program header tableåœ¨æ–‡ä»¶ä¸­çš„åç§»é‡	e_phoff-->esi	
 	.begin:
 		mov eax,[ds:esi+0h]						;										p_type-->eax
-		cmp	eax,0								;Èç¹ûprogram headerµÄÀàĞÍÎª0£¬Ôò½øĞĞÏÂÒ»¸öprogram header
+		cmp	eax,0								;å¦‚æœprogram headerçš„ç±»å‹ä¸º0ï¼Œåˆ™è¿›è¡Œä¸‹ä¸€ä¸ªprogram header
 		je .noAcation
-		push dword [ds:esi+10h]					;¶ÎµÄ´óĞ¡								p_filesz-->ÈëÕ»
-		mov eax,[ds:esi+4h]						;¶ÎÔÚÎÄ¼şÖĞµÄÆ«ÒÆ						p_offset-->eax
+		push dword [ds:esi+10h]					;æ®µçš„å¤§å°								p_filesz-->å…¥æ ˆ
+		mov eax,[ds:esi+4h]						;æ®µåœ¨æ–‡ä»¶ä¸­çš„åç§»						p_offset-->eax
 		add eax,BASE_OF_KERNEL_FILE_PHY_ADDR
-		push eax								;										(p_offset+BaseOfKernelFilePhyAdd)-->ÈëÕ»
-		push dword [ds:esi+8h]					;¶ÎÒª¼ÓÔØµ½ÄÚ´æÖĞµÄ´ËµØÖ·È¥				p_vaddr-->ÈëÕ»
+		push eax								;										(p_offset+BaseOfKernelFilePhyAdd)-->å…¥æ ˆ
+		push dword [ds:esi+8h]					;æ®µè¦åŠ è½½åˆ°å†…å­˜ä¸­çš„æ­¤åœ°å€å»				p_vaddr-->å…¥æ ˆ
 		call memCpy
-		add esp,12								;°ÑÈëÕ»µÄÊı¾İÉ¾³ıµô
+		add esp,12								;æŠŠå…¥æ ˆçš„æ•°æ®åˆ é™¤æ‰
 		.noAcation:
-		add esi,20H								;ÏÂÒ»¸öprogram header
+		add esi,20H								;ä¸‹ä¸€ä¸ªprogram header
 		dec ecx
-	jnz .begin									;zf²»µÈÓÚ0Ê±Ìø×ª£¬ÅĞ¶ÏcxµÄ¸Ä±äÊÇ·ñÒıÆğzfÎ»¸Ä±ä
+	jnz .begin									;zfä¸ç­‰äº0æ—¶è·³è½¬ï¼Œåˆ¤æ–­cxçš„æ”¹å˜æ˜¯å¦å¼•èµ·zfä½æ”¹å˜
 	ret
 
-;MemCpy(dst, src, size)	°ÑsrcÄÚ´æµØÖ·µÄsize¸ö×Ö½Ú¿½±´µ½dstÄÚ´æµØÖ·È¥.ºóÃæµÄ²ÎÊıÏÈÈëÕ»
+;MemCpy(dst, src, size)	æŠŠsrcå†…å­˜åœ°å€çš„sizeä¸ªå­—èŠ‚æ‹·è´åˆ°dstå†…å­˜åœ°å€å».åé¢çš„å‚æ•°å…ˆå…¥æ ˆ
 ;-----------------------------------------------------------------------------------------------------
 memCpy:
 	push	ebp
@@ -267,42 +267,42 @@ memCpy:
 	
 	push	esi
 	push	edi
-	push	ecx							;Ôİ´æ¼Ä´æÆ÷ÖĞµÄÖµ
+	push	ecx							;æš‚å­˜å¯„å­˜å™¨ä¸­çš„å€¼
 	
 	mov	edi, [ebp + 8]					;Destination
 	mov	esi, [ebp + 12]					;Source
 	mov	ecx, [ebp + 16]					;Counter
 	.1:
-		cmp	ecx, 0							;ÅĞ¶Ï¼ÆÊıÆ÷
-		jz	.2								;¼ÆÊıÆ÷ÎªÁãÊ±Ìø³ö
+		cmp	ecx, 0							;åˆ¤æ–­è®¡æ•°å™¨
+		jz	.2								;è®¡æ•°å™¨ä¸ºé›¶æ—¶è·³å‡º
 	
-		mov	al, [ds:esi]					; ©·
-		inc	esi								; ©§
-											; ©Ç Öğ×Ö½ÚÒÆ¶¯
-		mov	byte [es:edi], al				; ©§
-		inc	edi								; ©¿
+		mov	al, [ds:esi]					; â”“
+		inc	esi								; â”ƒ
+											; â”£ é€å­—èŠ‚ç§»åŠ¨
+		mov	byte [es:edi], al				; â”ƒ
+		inc	edi								; â”›
 	
-		dec	ecx								;¼ÆÊıÆ÷¼õÒ»
-	jmp	.1								;Ñ­»·
+		dec	ecx								;è®¡æ•°å™¨å‡ä¸€
+	jmp	.1								;å¾ªç¯
 	.2:
-	mov	eax, [ebp + 8]					;·µ»ØÖµ,·µ»ØÄ¿±êµØÖ·µÄÆ«ÒÆÖµDestination
+	mov	eax, [ebp + 8]					;è¿”å›å€¼,è¿”å›ç›®æ ‡åœ°å€çš„åç§»å€¼Destination
 	
 	pop	ecx
 	pop	edi
 	pop	esi
 	mov	esp, ebp
-	pop	ebp								;»Ö¸´¼Ä´æÆ÷ÖĞÔ­ÏÈµÄÖµ
+	pop	ebp								;æ¢å¤å¯„å­˜å™¨ä¸­åŸå…ˆçš„å€¼
 	ret
 
 ;==================================================================================================
 [section .data]
 ALIGN	32
-;ÓÃÓÚ±£´æÄÚ´æĞÅÏ¢µÄÄÚ´æÇøÓò
+;ç”¨äºä¿å­˜å†…å­˜ä¿¡æ¯çš„å†…å­˜åŒºåŸŸ
 LABEL_SEG_DATA:
 	_CheckMemeryNumber:		db		0
 	_CheckMemeryBuffer:		times	256	db	0
-	_MemerySize:			dd		'Mem Size:',0											;ÄÚ´æµÄ´óĞ¡±£´æÔÚ _MemerySize+9 µØÖ·		
-	_MemeryInfoTableHead:	db		'BaseAddrL BaseAddrH LengthLow LengthHigh     Type',0	;ÊµÄ£Ê½ÏÂµÄÑ°Ö··½Ê½
+	_MemerySize:			dd		'Mem Size:',0											;å†…å­˜çš„å¤§å°ä¿å­˜åœ¨ _MemerySize+9 åœ°å€		
+	_MemeryInfoTableHead:	db		'BaseAddrL BaseAddrH LengthLow LengthHigh     Type',0	;å®æ¨¡å¼ä¸‹çš„å¯»å€æ–¹å¼
 	
 CHECK_MEMERY_NUMBER	equ	BASE_OF_LOADER_PHY_ADDR + _CheckMemeryNumber
 CHECK_MEMERY_BUFFER	equ	BASE_OF_LOADER_PHY_ADDR + _CheckMemeryBuffer
@@ -312,4 +312,4 @@ MEMERY_SIZE			equ	BASE_OF_LOADER_PHY_ADDR + _MemerySize
 [section .stack]
 ALIGN	32
 	times	100	db	0
-	TOP_OF_STACK	equ	BASE_OF_LOADER_PHY_ADDR + $		;±£»¤Ä£Ê½ÏÂµÄÕ»¶Î
+	TOP_OF_STACK	equ	BASE_OF_LOADER_PHY_ADDR + $		;ä¿æŠ¤æ¨¡å¼ä¸‹çš„æ ˆæ®µ

@@ -12,6 +12,9 @@
 #define TRUE	1				//真值
 #define	NULL	0
 
-t_8			gdt_ptr[6];				//0~15:limit	16~47:base	用于保存寄存器gdtr中的值，前两个字节保存gdt的界限，后四个字节保存gdt的地址
+t_8			GDT_PTR[6];			//0~15:limit	16~47:base	用于保存寄存器gdtr中的值，前两个字节保存gdt的界限，后四个字节保存gdt的地址
+DESCRIPTOR	GDT[GDT_SIZE];		//定义描述符表
+t_8			IDT_PTR[6];
+GATE		IDT[IDT_SIZE];
 
 #endif
