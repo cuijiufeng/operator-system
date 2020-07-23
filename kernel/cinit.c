@@ -5,6 +5,7 @@
  */
 #include	"type.h"
 #include	"protect.h"
+#include	"interrupt.h"
 #include	"global.h"
  
  PUBLIC void cinit()
@@ -26,5 +27,11 @@
 	 *p_idt_limit = IDT_SIZE * sizeof(GATE) - 1;
 	 *p_idt_base = (t_32)&IDT;
 
+	 //初始化TSS
+	 memset(&TSS, 0, sizeof(TSS));
+	 TSS.ss0 = SELECTOR_KERNEL_DS;
+	 TSS.iobase = sizeof(TSS);	//没有I/O许可位图
+
 	 init8259A();
+	 initProtect();
  }

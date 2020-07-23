@@ -12,5 +12,8 @@ void	disableInt();
 void	enableInt();
 void	disableIrq(int irq);
 void 	enableIrq(int irq);
+void	displayStr(char* str, int pos);
+void	displayInt(int input, int pos);
+void	cleanScreen();
 
 #endif // !_OS_KLIB_H_

@@ -4,8 +4,8 @@
  */
 #include	"type.h"
 #include	"protect.h"
-#include	"global.h"
 #include	"interrupt.h"
+#include	"global.h"
 #include	"klib.h"
 
 PUBLIC init8259A()

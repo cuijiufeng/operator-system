@@ -44,5 +44,6 @@ clean :
 	rm -f $(OUTPUT)/os.img
 
 #kernel.o在链接的时候需要放在第一位置，不知道为什么？
-$(TARGET) : ./output/kernel/kernel.o ./output/kernel/cinit.o ./output/lib/memlib.o ./output/kernel/i8259.o ./output/lib/klib.o
+$(TARGET) : ./output/kernel/kernel.o ./output/kernel/cinit.o ./output/lib/memlib.o ./output/kernel/i8259.o ./output/lib/klib.o ./output/kernel/protect.o \
+			./output/kernel/interrupt.o ./output/lib/clib.o ./output/kernel/8259_handler.o ./output/kernel/syserr_handler.o
 	$(LD) $(LDARG) $^ -o $(OUTPUT)/$@

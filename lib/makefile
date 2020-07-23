@@ -15,7 +15,7 @@ endif
 
 IPATH		= ../include/
 OUTPUT		= ../output/lib
-TARGET		= memlib.o klib.o
+TARGET		= memlib.o klib.o clib.o
 
 .PHONY : all clean
 
@@ -29,6 +29,8 @@ clean :
 
 memlib.o : memlib.asm
 	$(ASM) $(ASMARG) -I$(IPATH) $< -o $(OUTPUT)/$@
-
 klib.o : klib.asm
 	$(ASM) $(ASMARG) -I$(IPATH) $< -o $(OUTPUT)/$@
+
+clib.o : klib.c
+	$(GCC) $(GCCARG) -I$(IPATH) $< -o $(OUTPUT)/$@

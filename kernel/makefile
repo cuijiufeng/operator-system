@@ -15,7 +15,7 @@ endif
 
 IPATH		= ../include/
 OUTPUT		= ../output/kernel
-TARGET		= kernel.o cinit.o i8259.o
+TARGET		= kernel.o cinit.o i8259.o protect.o interrupt.o 8259_handler.o syserr_handler.o
 
 .PHONY : all clean
 
@@ -29,9 +29,16 @@ clean :
 
 kernel.o : kernel.asm
 	$(ASM) $(ASMARG) -I$(IPATH) $< -o $(OUTPUT)/$@
+8259_handler.o : 8259_handler.asm
+	$(ASM) $(ASMARG) -I$(IPATH) $< -o $(OUTPUT)/$@
+syserr_handler.o : syserr_handler.asm
+	$(ASM) $(ASMARG) -I$(IPATH) $< -o $(OUTPUT)/$@
 	
 cinit.o : cinit.c
 	$(GCC) $(GCCARG) -I$(IPATH) $< -o $(OUTPUT)/$@
-
 i8259.o : i8259.c
+	$(GCC) $(GCCARG) -I$(IPATH) $< -o $(OUTPUT)/$@
+protect.o : protect.c
+	$(GCC) $(GCCARG) -I$(IPATH) $< -o $(OUTPUT)/$@
+interrupt.o : interrupt.c
 	$(GCC) $(GCCARG) -I$(IPATH) $< -o $(OUTPUT)/$@
