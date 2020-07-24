@@ -2,7 +2,23 @@
 ; 系统错误中断处理子程序
 ;==================================================================================================
 
-%include	"kernel.inc"
+extern	syserrHandler
+global divideError
+global singleStepException
+global nmi
+global breakpointException
+global overflow
+global boundsCheck
+global invalOpcode
+global coprNotAvailable
+global doubleFault
+global coprSegOverrun
+global invalTss
+global segmentNotPresent
+global stackException
+global generalProtection
+global pageFault
+global coprError
 
 ;中断、异常-------异常
 ;==================================================================================================================

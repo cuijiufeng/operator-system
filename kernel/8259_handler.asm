@@ -1,7 +1,27 @@
 ; 2020年07月22日 20/12/38
 ; 8259中断处理子程序
 ;==================================================================================================
+
 %include	"kernel.inc"
+extern STACK_TOP
+extern restart
+extern restart_reenter
+global hwint00
+global hwint01
+global hwint02
+global hwint03
+global hwint04
+global hwint05
+global hwint06
+global hwint07
+global hwint08
+global hwint09
+global hwint10
+global hwint11
+global hwint12
+global hwint13
+global hwint14
+global hwint15
 
 ;中断发生时的寄存器保存工作
 ;==================================================================================================================

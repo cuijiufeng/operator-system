@@ -19,6 +19,8 @@ LABEL_START:
 		mov ax,cs
 		mov ds,ax
 		mov ss,ax
+		mov ax,0B800H
+		mov gs,ax
 		;boot状态下的堆栈栈顶指针
 		mov sp,TOP_OF_STACK_BOOT
 		
@@ -118,13 +120,11 @@ findTheLoaer:
 ;清空屏幕
 ;--------------------------------------------------------------------------------------------------
 clearScreen:
-	mov ax,0B800H
-	mov es,ax
 	mov di,0
-	mov ax,0700H
+	mov ax,0F00H
 	mov cx,2000
 	.clear:
-		mov [es:di],ax
+		mov [gs:di],ax
 		add di,2
 	loop .clear
 	ret
@@ -133,20 +133,16 @@ clearScreen:
 ;--------------------------------------------------------------------------------------------------
 displayString:
 	push ax
-	push es
-	mov ax, 0B800H
-	mov es, ax
-	mov ah, 07H
+	mov ah, 0FH
 	.display:
 		mov al, [ds:si]
 		cmp al, 0
 		je .over
-		mov [es:di], ax
+		mov [gs:di], ax
 		inc si
 		add di, 2
 	jmp .display
 	.over:
-	pop es
 	pop ax
 	ret	
 

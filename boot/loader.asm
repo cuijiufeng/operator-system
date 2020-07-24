@@ -9,14 +9,13 @@
 ;4.向内核交出控制权
 ;==================================================================================================
 
-org	0100H				
+org	0100H
 ;导入关于载入文件地址的一些常量值
 %include "const.inc"			
 ;导入描述符结构及其常量值
 %include "pm.inc"			
 jmp LABEL_START
-;导入dos可以识别的BPB等头信息及一些关于软盘的常量值
-%include "fat12hdr.inc"	
+%include "fat12hdr.inc"
 
 ;描述符表
 ;==================================================================================================
@@ -42,13 +41,15 @@ LABEL_START:
 	mov ax,cs
 	mov ds,ax
 	mov ss,ax
+	mov ax,0B800H
+	mov gs,ax
 	mov sp,TOP_OF_STACK_LOADER
 
 	call getMemeryInfo						;获得内存信息
 	call getMemerySize						;计算内存的大小
 		
 	mov si,_MemeryInfoTableHead
-	mov di,280H
+	mov di,320H
 	call displayString						;打印内存信息表的表头
 		
 	call disMemInfo							;打印内存信息
@@ -190,7 +191,7 @@ LABEL_PM_START:
 ;-----------------------------------------------------------------------------------------------------
 setupPageing:
 	xor edx,edx
-	mov eax,[ds:MEMERY_SIZE+9]				;获得内存大小
+	mov eax,[ds:MEMORY_SIZE_OFFSET]			;获得内存大小
 	mov ebx,400000H							;一个页表可以寻址4MB
 	div ebx
 	cmp edx,0								;如果余数不为零，则需要加一个页表
@@ -299,14 +300,8 @@ memCpy:
 ALIGN	32
 ;用于保存内存信息的内存区域
 LABEL_SEG_DATA:
-	_CheckMemeryNumber:		db		0
-	_CheckMemeryBuffer:		times	256	db	0
-	_MemerySize:			dd		'Mem Size:',0											;内存的大小保存在 _MemerySize+9 地址		
+	_MemerySizeStr:			db		'Mem Size:',0											;内存的大小保存在 _MemerySize+9 地址		
 	_MemeryInfoTableHead:	db		'BaseAddrL BaseAddrH LengthLow LengthHigh     Type',0	;实模式下的寻址方式
-	
-CHECK_MEMERY_NUMBER	equ	BASE_OF_LOADER_PHY_ADDR + _CheckMemeryNumber
-CHECK_MEMERY_BUFFER	equ	BASE_OF_LOADER_PHY_ADDR + _CheckMemeryBuffer
-MEMERY_SIZE			equ	BASE_OF_LOADER_PHY_ADDR + _MemerySize
 
 ;==================================================================================================
 [section .stack]

@@ -2,40 +2,19 @@
 ;抽取的函数
 ;==================================================================================================
 
-
-;清空屏幕
-;==================================================================================================
-clearScreen:
-	mov ax,0B800H
-	mov es,ax
-	mov di,0
-	mov ax,0700H
-	mov cx,2000
-	.clear:
-		mov [es:di],ax
-		add di,2
-	loop .clear
-	ret
-
 ;打印字符串
 ;==================================================================================================
 displayString:
-	push ax
-	push es
-	mov ax, 0B800H
-	mov es, ax
-	mov ah, 07H
+	mov ah, 0FH
 	.display:
 		mov al, [ds:si]
 		cmp al, 0
 		je .over
-		mov [es:di], ax
+		mov [gs:di], ax
 		inc si
 		add di, 2
 	jmp .display
 	.over:
-	pop es
-	pop ax
 	ret
 
 ;打印eax中的值
@@ -61,8 +40,8 @@ displayFourByteData:
 	call displayAX			;打印低一个字节
 		
 	mov al,'H'
-	mov ah,0fH
-	mov [es:di],ax			;每个成员后边打印一个H
+	mov ah,0FH
+	mov [gs:di],ax			;每个成员后边打印一个H
 	add di,4
 		
 	pop eax
@@ -85,11 +64,11 @@ displayAX:
 		ja .char			;如果是a~F字符
 	.int:					;如果是数字
 		add al,'0'			;变成数字字符
-		mov [es:di],ax		;打印
+		mov [gs:di],ax		;打印
 		jmp .over
 	.char:
 		add al,55			;变成字符
-		mov [es:di],ax
+		mov [gs:di],ax
 	.over:
 		add di,2			;下一个打印位置
 		mov al,dl			;准备打印低四位

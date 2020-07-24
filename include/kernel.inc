@@ -4,42 +4,10 @@
 
 ;导出
 global	_start						;导出_start
-global hwint00
-global hwint01
-global hwint02
-global hwint03
-global hwint04
-global hwint05
-global hwint06
-global hwint07
-global hwint08
-global hwint09
-global hwint10
-global hwint11
-global hwint12
-global hwint13
-global hwint14
-global hwint15
-global divideError
-global singleStepException
-global nmi
-global breakpointException
-global overflow
-global boundsCheck
-global invalOpcode
-global coprNotAvailable
-global doubleFault
-global coprSegOverrun
-global invalTss
-global segmentNotPresent
-global stackException
-global generalProtection
-global pageFault
-global coprError
 
-extern STACK_TOP
-extern restart
-extern restart_reenter
+global STACK_TOP
+global restart
+global restart_reenter
 
 ;导入(声明)
 extern	GDT_PTR						;gdtr寄存器的值
@@ -51,7 +19,6 @@ extern	P_PROCESS_READY
 
 extern	cinit
 extern	cmain
-extern	syserrHandler
 
 ;==================================================================================================================
 ;	s_process结构体中各个成员的相对偏移量
