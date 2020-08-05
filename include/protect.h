@@ -5,9 +5,6 @@
 #ifndef _OS_PROTECT_H_
 #define _OS_PROTECT_H_
 
- //段基址:偏移地址----->物理地址(32位的)
-#define	vir2phys(seg_base, vir) (t_32)(((t_32)seg_base)+(t_32)(vir))
-
 //---------------------------------------------------------------------------------------
 #define	GDT_SIZE			128
 #define	IDT_SIZE			256
@@ -34,8 +31,6 @@
 #define	SELECTOR_KERNEL_CS	0x08	// ┃
 #define	SELECTOR_KERNEL_DS	0x10	// ┣ LOADER 里面已经确定了的.
 #define	SELECTOR_VIDEO		(0x18+3)// ┛<-- RPL=3
-#define	SELECTOR_TSS		0x20
-#define	SELECTOR_LDT_FIRST	0x28	// TSS. 从外层跳到内存时 SS 和 ESP 的值从里面获得.
 //选择子类型值说明
 #define	SA_RPL_MASK			0xFFFC
 #define	SA_RPL0				0
@@ -100,11 +95,17 @@ typedef struct s_tss {
 } TASK_STATE_SEGMENT;
 
 //---------------------------------------------------------------------------------------
+t_8					GDT_PTR[6];			//0~15:limit	16~47:base	用于保存寄存器gdtr中的值，前两个字节保存gdt的界限，后四个字节保存gdt的地址
+DESCRIPTOR			GDT[GDT_SIZE];		//定义描述符表
+t_8					IDT_PTR[6];
+GATE				IDT[IDT_SIZE];
+//---------------------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------------------
 //相关函数声明
-PUBLIC	void	initProtect();
-PUBLIC	t_32	seg2phys(t_16 seg);
-PUBLIC	void	initIdtDesc(t_8 vector, t_8 desc_type, T_PF_INT_HANDLER handler, t_8 privilege);
-PUBLIC	void	initDescriptor(DESCRIPTOR* p_desc, t_32 base, t_32 limit, t_16 attribute);
+PUBLIC 	void 	initIdtDesc();
+PUBLIC	void	setIdtDesc(t_8 vector, t_8 desc_type, T_PF_INT_HANDLER handler, t_8 privilege);
+PUBLIC	void	setGdtDesc(DESCRIPTOR* p_desc, t_32 base, t_32 limit, t_16 attribute);
 //---------------------------------------------------------------------------------------
 
 #endif // !_OS_PROTECT_H_

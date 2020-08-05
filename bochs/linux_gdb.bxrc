@@ -1,0 +1,23 @@
+
+# how much memory the emulated machine will have
+megs: 60
+
+# filename of ROM images
+romimage: file=$BXSHARE/BIOS-bochs-latest
+vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest
+
+# what disk images will be used 
+floppya: 1_44=a.img, status=inserted
+
+# choose the boot disk.
+boot: a
+
+# where do we send log messages?
+# log: bochsrc.txt
+
+# disable the mouse, since DLX is text only
+mouse: enabled=0
+
+keyboard: keymap=$BXSHARE/keymaps/x11-pc-us.map
+ata0-master: type=disk, path="hdc-0.11.img", mode=flat, cylinders=410, heads=16, spt=38
+gdbstub: enabled=1, port=1234, text_base=0, data_base=0, bss_base=0

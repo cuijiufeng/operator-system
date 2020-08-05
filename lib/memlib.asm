@@ -18,19 +18,8 @@ memcpy:
 	mov	edi, [ebp + 8]					;Destination
 	mov	esi, [ebp + 12]					;Source
 	mov	ecx, [ebp + 16]					;Counter
-	.MEMCPY_LOOP:
-		cmp	ecx, 0						;判断计数器
-		jz	.MEMCPY_RET					;计数器为零时跳出
-	
-		mov	al, [ds:esi]				; ┓
-		inc	esi							; ┃
-										; ┣ 逐字节移动
-		mov	byte [es:edi], al			; ┃
-		inc	edi							; ┛
-	
-		dec	ecx							;计数器减一
-	jmp	.MEMCPY_LOOP					;循环
-	.MEMCPY_RET:
+	cld
+	rep movsb
 	mov	eax, [ebp + 8]					;返回值,返回目标地址的偏移值Destination
 	
 	pop	ecx
@@ -53,14 +42,8 @@ memset:
 	mov edi, [ss:ebp+8]					;Destination
 	mov edx, [ss:ebp+12]				;ch
 	mov ecx, [ss:ebp+16]				;size
-	.MEMSET_LOOP:
-		cmp ecx,0
-		jz	.MEMSET_RET
-		mov byte [ds:edi], dl
-		inc edi
-		dec ecx
-	jmp .MEMSET_LOOP	
-	.MEMSET_RET:
+	cld
+	rep stosb
 	pop ecx
 	pop edx
 	pop edi

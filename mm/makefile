@@ -1,10 +1,10 @@
-# 2020å¹´07æœˆ19æ—¥ 09/11/26
-# lib
+# 2020Äê07ÔÂ30ÈÕ 19/18/35
+# ÄÚ´æ
 #==============================================================================
 include	../makefile.head
 
 LDFLAGS		+= -r
-OBJS		= memlib.o klib.o clib.o
+OBJS		= memory.o
 
 .PHONY : all clean
 %.o : %.asm
@@ -12,16 +12,13 @@ OBJS		= memlib.o klib.o clib.o
 %.o : %.c
 	$(GCC) $(GCCFLAGS) -I$(IPATH) $< -o $@
 
-all : lib.o
+all : mm.o
 
 clean : 
-	rm -rf $(OBJS) lib.o
+	rm -rf $(OBJS) mm.o
 	
-lib.o : $(OBJS)
+mm.o : $(OBJS)
 	$(LD) $(LDFLAGS) $^ -o $@
 
-# ä¾èµ–
-memlib.o : memlib.asm
-klib.o : klib.asm
-
-clib.o : clib.c
+# ÒÀÀµ
+memory.o : memory.c

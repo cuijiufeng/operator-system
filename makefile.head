@@ -1,0 +1,21 @@
+# 2020年07月28日 09:59:01
+# 头文件
+#==============================================================================
+
+DEBUG		= 1
+
+ASM			= nasm
+GCC			= gcc
+LD			= ld
+ifeq ($(DEBUG), 1)
+	ASMFLAGS	= -f elf32
+	GCCFLAGS	= -g -c -m32 -w
+	LDFLAGS		= -m elf_i386
+else
+	ASMFLAGS	= -f elf32
+	GCCFLAGS	= -c -m32 -w
+	LDFLAGS		= -m elf_i386 -s
+endif
+IPATH		= ../include/
+
+export DEBUG
