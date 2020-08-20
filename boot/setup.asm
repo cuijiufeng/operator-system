@@ -22,7 +22,6 @@ jmp LABEL_START
 LABEL_GDT:			Descriptor		0,			0,				0
 LABEL_DESC_FLAT_C:	Descriptor		0,			0FFFFFH,		DA_32 | DA_LIMIT_4K | DA_CR		;0~4G只执行段
 LABEL_DESC_FLAT_RW:	Descriptor		0,			0FFFFFH,		DA_32 | DA_LIMIT_4K | DA_DRW	;0~4G可读写段
-LABEL_VIDEO:		Descriptor		0B8000H,	0FFFFH,			DA_DRW | DA_DPL3
 	
 ;GDTR
 GDT_LEN	equ		$ - LABEL_GDT
@@ -33,7 +32,6 @@ GdtPtr:	dw		GDT_LEN - 1
 ;选择子
 SELECTOR_FLAT_C		equ		LABEL_DESC_FLAT_C - LABEL_GDT
 SELECTOR_FLOAT_RW	equ		LABEL_DESC_FLAT_RW - LABEL_GDT
-SELECTOR_VIDEO		equ		LABEL_VIDEO - LABEL_GDT + SA_RPL3
 
 ;代码开始处
 ;==================================================================================================		
@@ -193,13 +191,12 @@ RootDevTypeStr:			db		'Root Dev Type:',0
 ALIGN	32								;32个字节对齐
 [BITS 32]
 LABEL_PM_START:
-	mov ax,SELECTOR_VIDEO
-	mov gs,ax
 	mov ax,SELECTOR_FLOAT_RW
 	mov ds,ax
 	mov ss,ax
 	mov es,ax
 	mov fs,ax
+	mov gs,ax
 	mov esp,TOP_OF_STACK
 		
 	call setupPageing				;开启分页机制

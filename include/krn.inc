@@ -23,56 +23,30 @@ global hwint14
 global hwint15
 
 ;导入(声明)
+extern	KERNEL_STACK
 extern	GDT_PTR						;gdtr寄存器的值
 extern	IDT_PTR
 extern	IRQ_TABLE
-
 extern	cinit
 ;==================================================================================================================
-;	s_process结构体中各个成员的相对偏移量
-;------------------------------------------------------------------------------------------------------------------
-P_STACKBASE		equ	0
-GSREG			equ	P_STACKBASE
-FSREG			equ	GSREG		+ 4
-ESREG			equ	FSREG		+ 4
-DSREG			equ	ESREG		+ 4
-EDIREG			equ	DSREG		+ 4
-ESIREG			equ	EDIREG		+ 4
-EBPREG			equ	ESIREG		+ 4
-KERNELESPREG	equ	EBPREG		+ 4
-EBXREG			equ	KERNELESPREG+ 4
-EDXREG			equ	EBXREG		+ 4
-ECXREG			equ	EDXREG		+ 4
-EAXREG			equ	ECXREG		+ 4
-
-RETADR			equ	EAXREG		+ 4
-
-EIPREG			equ	RETADR		+ 4
-CSREG			equ	EIPREG		+ 4
-EFLAGSREG		equ	CSREG		+ 4
-ESPREG			equ	EFLAGSREG	+ 4
-SSREG			equ	ESPREG		+ 4
-;------------------------------------------------------------------------------------------------------------------
-P_STACKTOP		equ	SSREG		+ 4			;栈顶
-P_LDT_SEL		equ	P_STACKTOP				;LDT_SELECTOR的相对偏移量
-P_LDT			equ	P_LDT_SEL	+ 4			;LDT的相对偏移量
-;------------------------------------------------------------------------------------------------------------------
+PAGE_SIZE		equ	4096
+;选择子
+SELECTOR_DUMMY			equ	0		;┓
+SELECTOR_KERNEL_CS		equ	08H		;┣ LOADER 里面已经确定了的.
+SELECTOR_KERNEL_DS		equ	10H		;┛
+SELECTOR_FIRST_TASK_TSS	equ	8H
+SELECTOR_FIRST_TASK_LDT	equ	20H
+SA_RPL0		equ	0
+SA_RPL1		equ	1
+SA_RPL2		equ	2
+SA_RPL3		equ	3
+SA_TIG		equ	0			;描述符GDT在中
+SA_TIL		equ	4			;描述符LDT在中
 ;==================================================================================================================
-
-;==================================================================================================================
-TSS3_S_SP0		equ	4						;TSS中的esp0的相对偏移量
-;==================================================================================================================
-
 ;==================================================================================================================
 EOI				equ	20H						;ocw2,中断结束控制字
 INT_M_CTL		equ	20H						;主8259的偶地址端口20H
 INT_M_CTLMASK	equ	21H						;主8259的奇地址端口21H
 INT_S_CTL		equ	0A0H					;从8259的偶地址端口A0H
 INT_S_CTLMASK	equ	0A1H					;从8259的偶地址端口A1H
-;==================================================================================================================
-
-;==================================================================================================================
-; 以下选择子值必须与 protect.h 中保持一致!!!
-SELECTOR_KERNEL_CS	equ		0x08				; LOADER 里面已经确定了的.
-SELECTOR_TSS		equ		0x20				; TSS. 从外层跳到内存时 SS 和 ESP 的值从里面获得.
 ;==================================================================================================================

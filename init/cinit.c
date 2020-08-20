@@ -4,34 +4,22 @@
  * 2.初始化工作
  */
 #include	<type.h>
+#include	<mm.h>
 #include	<protect.h>
 #include	<int.h>
-#include	<mm.h>
 #include	<fs.h>
 #include	<blk_drv/blk.h>
 #include	<lib.h>
 
 //这些是在setup里确定的
-#define	EXT_MEM_SIZE	(*((t_32*)0X70000))
-#define	ROOT_DEV_TYPE	(*((t_32*)0X70004))
-#define	DRIVER_INFO		((t_8*)0X70010)
+#define	EXT_MEM_SIZE	(*((t_32*)0x70000))
+#define	ROOT_DEV_TYPE	(*((t_32*)0x70004))
+#define	DRIVER_INFO		((t_8*)0x70010)
+//页表地址
+#define	PAGE_DIR	0x90000
 
 PUBLIC void cinit()
 {
-	//初始化8259
-	outByte(INT_M_CTL, 0x11);					//主8259A							ICW1
-	outByte(INT_M_CTLMASK, INT_VECTOR_IRQ0);	//设置主8259A的中断入口地址为0x20	ICW2
-	outByte(INT_M_CTLMASK, 0x4);				//IR2对应'从8259A'					ICW3
-	outByte(INT_M_CTLMASK, 0x1);				//									ICW4
-	
-	outByte(INT_S_CTL, 0x11);					//从8259A							ICW1
-	outByte(INT_S_CTLMASK, INT_VECTOR_IRQ8);	//设置从8259A的中断入口地址为0x28	ICW2
-	outByte(INT_S_CTLMASK, 0x2);				//对应'主8259A'的IR2				ICW3
-	outByte(INT_S_CTLMASK, 0x1);				//									ICW4
-	
-	outByte(INT_M_CTLMASK, 0xFB);				//屏蔽‘主8259A’所有中断			OCW1
-	outByte(INT_S_CTLMASK, 0xFF);				//屏蔽‘从8259A’所有中断			OCW1
-	
 	//gdt拷贝
 	memcpy(&GDT, (void*)(*((t_32*)(&GDT_PTR[2]))), *((t_16*)(&GDT_PTR[0]))+1);
 
@@ -48,12 +36,22 @@ PUBLIC void cinit()
 	//修改idt_ptr的值
 	*p_idt_limit = IDT_SIZE * sizeof(GATE) - 1;
 	*p_idt_base = (t_32)&IDT;
+
+	lgdt(GDT_PTR);	//设置新的GDT
+	lidt(IDT_PTR);	//设置新的IDT
+	flushSegR();	//刷新段寄存器的值
 	
 	//ROOT_DEV
 	ROOT_DEV = ROOT_DEV_TYPE;
 	//硬盘参数
 	memcpy(&HD_INFO, DRIVER_INFO, 0x10);
 
+	init8259A();
 	initIdtDesc();
 	initMemory(EXT_MEM_SIZE);
+	initSchedule();
+
+	//设置ltr、lldt
+	ltr(SELECTOR_FIRST_TASK_TSS | SA_RPL3);
+	lldt(SELECTOR_FIRST_TASK_LDT | SA_RPL3);
 }

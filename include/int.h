@@ -51,7 +51,7 @@ T_PF_IRQ_HANDLER	IRQ_TABLE[NR_IRQ];		//8259中断调用子程序表
 
 //---------------------------------------------------------------------------------------
 //8259相关函数声明
-PUBLIC void init8259A();
+PUBLIC	void	init8259A();
 //系统错误中断处理程序
 void	syserrHandler(int err_no, int err_code, int eip, int cs, int eflags);
 void	divideError();

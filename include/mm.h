@@ -4,8 +4,12 @@
  */
 #ifndef _OS_MM_H_
 #define	_OS_MM_H_
-
+#define	PAGE_DIR	0x90000
+//页大小
+#define	PAGE_SIZE	4096
+//内存大小
 #define	MEM_SIZE	(60*1024*1024)
+//二级分页占用的内存大小
 #define	PAGES_SIZE	(MEM_SIZE>>12)
 
 //---------------------------------------------------------------------------------------
