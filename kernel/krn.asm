@@ -11,6 +11,7 @@ _start:
 	sgdt 	[ds:GDT_PTR]		;sgdt指令。保存gdtr寄存器中的值到gdt_ptr内存地址中去
 	call	cinit
 MOVE_TO_USER:
+	sti
 	mov eax, esp
 	push SELECTOR_KERNEL_DS|SA_TIL|SA_RPL3	;push ss
 	push eax								;push esp

@@ -1,2 +1,3 @@
 .vs/
 bochs/hdc-0.11.img
+*.o

@@ -10,6 +10,7 @@
 #include	<fs.h>
 #include	<blk_drv/blk.h>
 #include	<lib.h>
+#include	<time.h>
 
 //这些是在setup里确定的
 #define	EXT_MEM_SIZE	(*((t_32*)0x70000))
@@ -46,6 +47,7 @@ PUBLIC void cinit()
 	//硬盘参数
 	memcpy(&HD_INFO, DRIVER_INFO, 0x10);
 
+	initTime();
 	init8259A();
 	initIdtDesc();
 	initMemory(EXT_MEM_SIZE);

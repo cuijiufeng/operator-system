@@ -4,7 +4,7 @@
 include	../makefile.head
 
 LDFLAGS		+= -r
-OBJS		= krn.o int.o protect.o int_handler.o process.o signal.o
+OBJS		= krn.o int.o protect.o int_handler.o process.o signal.o time.o
 
 .PHONY : all clean
 %.o : %.asm
@@ -28,3 +28,4 @@ protect.o : protect.c
 int_handler.o : int_handler.c
 process.o : process.c
 signal.o : signal.c
+time.o : time.c
