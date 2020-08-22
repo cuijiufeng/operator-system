@@ -156,7 +156,6 @@ disable_0:					;主片
 	or	al, ah
 	out	INT_M_CTLMASK, al	;关闭该irq号8259中断
 	popf
-	mov	eax, 1				;关闭成功，返回值1
 	ret
 disable_8:
 	in	al, INT_S_CTLMASK
@@ -165,11 +164,9 @@ disable_8:
 	or	al, ah
 	out	INT_S_CTLMASK, al	;关闭该irq号8259中断
 	popf
-	mov	eax, 1				;关闭成功，返回值1
 	ret
 dis_already:				;如果是关状态，则不需要关闭了
 	popf
-	xor	eax, eax			;关闭失败，返回值0
 	ret
 ;-------------------------------------------------------------------------------------------
 

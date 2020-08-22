@@ -14,13 +14,13 @@
 /* 存储段描述符类型值说明 */
 #define	DA_32				0x4000	//32 位段
 #define	DA_LIMIT_4K			0x8000	//段界限粒度为 4K 字节
-#define DA_DR				0x90		//存在的只读数据段类型值
-#define DA_DRW				0x92		//存在的可读写数据段属性值
-#define DA_DRWA				0x93		//存在的已访问可读写数据段类型值
-#define DA_C				0x98		//存在的只执行代码段属性值
-#define DA_CR				0x9A		//存在的可执行可读代码段属性值
-#define DA_CCO				0x9C		//存在的只执行一致代码段属性值
-#define DA_CCOR				0x9E		//存在的可执行可读一致代码段属性值
+#define DA_DR				0x90	//存在的只读数据段类型值
+#define DA_DRW				0x92	//存在的可读写数据段属性值
+#define DA_DRWA				0x93	//存在的已访问可读写数据段类型值
+#define DA_C				0x98	//存在的只执行代码段属性值
+#define DA_CR				0x9A	//存在的可执行可读代码段属性值
+#define DA_CCO				0x9C	//存在的只执行一致代码段属性值
+#define DA_CCOR				0x9E	//存在的可执行可读一致代码段属性值
 /* 系统段描述符类型值说明	 */
 #define	DA_LDT				0x82	/* 局部描述符表段类型值		*/
 #define	DA_386TSS			0x89	/* 可用 386 任务状态段类型值*/
@@ -98,14 +98,17 @@ typedef struct s_tss {
 } TSS;
 
 //---------------------------------------------------------------------------------------
-u_8			KERNEL_STACK[PAGE_SIZE];
-u_8			GDT_PTR[6];			//0~15:limit	16~47:base	用于保存寄存器gdtr中的值，前两个字节保存gdt的界限，后四个字节保存gdt的地址
-DESCRIPTOR	GDT[GDT_SIZE];		//定义描述符表
-u_8			IDT_PTR[6];
-GATE		IDT[IDT_SIZE];
+u_8			KERNEL_STACK[PAGE_SIZE];	//内核栈
+u_8			GDT_PTR[6];					//0~15:limit	16~47:base	用于保存寄存器gdtr中的值，前两个字节保存gdt的界限，后四个字节保存gdt的地址
+DESCRIPTOR	GDT[GDT_SIZE];				//定义描述符表
+u_8			IDT_PTR[6];					//中断描述符表基址与界限
+GATE		IDT[IDT_SIZE];				//中断描述符表
 //---------------------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------------------
+//8259相关函数声明
+PUBLIC	void	init8259A();
+PUBLIC	void	setIrqHandler(int irq, T_PF_IRQ_HANDLER handler);
 //相关函数声明
 PUBLIC 	void 	initIdtDesc();
 PUBLIC	void	setIdtDesc(u_8 vector, u_8 desc_type, T_PF_INT_HANDLER handler, u_8 privilege);

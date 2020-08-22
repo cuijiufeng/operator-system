@@ -6,23 +6,6 @@
 #include	<int.h>
 #include	<lib.h>
 
-PUBLIC	void	init8259A() 
-{
-	//初始化8259
-	outByte(INT_M_CTL, 0x11);					//主8259A							ICW1
-	outByte(INT_M_CTLMASK, INT_VECTOR_IRQ0);	//设置主8259A的中断入口地址为0x20	ICW2
-	outByte(INT_M_CTLMASK, 0x4);				//IR2对应'从8259A'					ICW3
-	outByte(INT_M_CTLMASK, 0x1);				//									ICW4
-
-	outByte(INT_S_CTL, 0x11);					//从8259A							ICW1
-	outByte(INT_S_CTLMASK, INT_VECTOR_IRQ8);	//设置从8259A的中断入口地址为0x28	ICW2
-	outByte(INT_S_CTLMASK, 0x2);				//对应'主8259A'的IR2				ICW3
-	outByte(INT_S_CTLMASK, 0x1);				//									ICW4
-
-	outByte(INT_M_CTLMASK, 0xFB);				//屏蔽‘主8259A’所有中断			OCW1
-	outByte(INT_S_CTLMASK, 0xFF);				//屏蔽‘从8259A’所有中断			OCW1
-}
-
 PUBLIC	void	syserrHandler(int err_no, int err_code, int eip, int cs, int eflags)
 {
 	int i;
@@ -76,4 +59,9 @@ PUBLIC	void	syserrHandler(int err_no, int err_code, int eip, int cs, int eflags)
 	displayStr("EFLAGS:", 800);
 	displayInt(eflags, 800 + sizeof("EFLAGS:") * 2);				//打印标志寄存器
 	displayStr("\n", 800 + (sizeof("EFLAGS:") + sizeof(eflags)) * 2);
+}
+
+//时钟中断处理子程序
+PUBLIC	void	timerHandler(int irq)
+{
 }

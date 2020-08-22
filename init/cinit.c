@@ -47,9 +47,9 @@ PUBLIC void cinit()
 	//硬盘参数
 	memcpy(&HD_INFO, DRIVER_INFO, 0x10);
 
-	initTime();
-	init8259A();
 	initIdtDesc();
+	init8259A();
+	initTime();
 	initMemory(EXT_MEM_SIZE);
 	initSchedule();
 

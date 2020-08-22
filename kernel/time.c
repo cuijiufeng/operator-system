@@ -3,7 +3,10 @@
  * 时间
  */
 #include	<type.h>
+#include	<mm.h>
+#include	<int.h>
 #include	<time.h>
+#include	<protect.h>
 #include	<lib.h>
 
 PUBLIC	void	initTime()
@@ -29,6 +32,9 @@ PUBLIC	void	initTime()
 
 	time.tm_mon--;									//tm_mon是[0-11],所以减一
 	STARTUP_TIME = mkTime(&time);					//计算自1970年1月1日08:00:00到现在的秒数
+
+	setIrqHandler(CLOCK_IRQ, timerHandler);			//设置时钟中断处理子程序
+	enableIrq(CLOCK_IRQ);							//打开时钟中断
 }
 
 PRIVATE	u_32	mkTime(TIME* time)

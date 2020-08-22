@@ -7,6 +7,23 @@
 #include	<protect.h>
 #include	<int.h>
 
+PUBLIC	void	init8259A()
+{
+	//初始化8259
+	outByte(INT_M_CTL, 0x11);					//主8259A							ICW1
+	outByte(INT_M_CTLMASK, INT_VECTOR_IRQ0);	//设置主8259A的中断入口地址为0x20	ICW2
+	outByte(INT_M_CTLMASK, 0x4);				//IR2对应'从8259A'					ICW3
+	outByte(INT_M_CTLMASK, 0x1);				//									ICW4
+
+	outByte(INT_S_CTL, 0x11);					//从8259A							ICW1
+	outByte(INT_S_CTLMASK, INT_VECTOR_IRQ8);	//设置从8259A的中断入口地址为0x28	ICW2
+	outByte(INT_S_CTLMASK, 0x2);				//对应'主8259A'的IR2				ICW3
+	outByte(INT_S_CTLMASK, 0x1);				//									ICW4
+
+	outByte(INT_M_CTLMASK, 0xFB);				//屏蔽‘主8259A’所有中断			OCW1
+	outByte(INT_S_CTLMASK, 0xFF);				//屏蔽‘从8259A’所有中断			OCW1
+}
+
 PUBLIC void initIdtDesc()
 {
 	//初始化异常中断
@@ -36,7 +53,6 @@ PUBLIC void initIdtDesc()
 	setIdtDesc(INT_VECTOR_IRQ0 + 5, DA_386IGate, hwint05, PRIVILEGE_KERNEL);
 	setIdtDesc(INT_VECTOR_IRQ0 + 6, DA_386IGate, hwint06, PRIVILEGE_KERNEL);
 	setIdtDesc(INT_VECTOR_IRQ0 + 7, DA_386IGate, hwint07, PRIVILEGE_KERNEL);
-
 	setIdtDesc(INT_VECTOR_IRQ8 + 0, DA_386IGate, hwint08, PRIVILEGE_KERNEL);
 	setIdtDesc(INT_VECTOR_IRQ8 + 1, DA_386IGate, hwint09, PRIVILEGE_KERNEL);
 	setIdtDesc(INT_VECTOR_IRQ8 + 2, DA_386IGate, hwint10, PRIVILEGE_KERNEL);
@@ -47,6 +63,11 @@ PUBLIC void initIdtDesc()
 	setIdtDesc(INT_VECTOR_IRQ8 + 7, DA_386IGate, hwint15, PRIVILEGE_KERNEL);
 }
 
+//设置8259中断处理子程序
+PUBLIC	void	setIrqHandler(int irq, T_PF_IRQ_HANDLER handler)
+{
+	IRQ_TABLE[irq] = handler;
+}
 
 //初始化一个IDT项			  向量号		类型			中断程序偏移				特权级
 PUBLIC	void	setIdtDesc(u_8 vector, u_8 desc_type, T_PF_INT_HANDLER handler, u_8 privilege)

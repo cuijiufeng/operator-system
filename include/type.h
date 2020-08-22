@@ -25,6 +25,6 @@ typedef unsigned char	t_bool;
 typedef void(*T_PF_INT_HANDLER)();			//定义一个函数指针类型t_pf_int_handler，t_pf_int_handler类型的变量指向void function()类型的函数
 typedef void(*T_PF_IRQ_HANDLER)(int irq);	//8259中断处理子程序的函数类型
 typedef void(*T_PF_SA_HANDLER)(int);		//对应某信号要采取的行动
-typedef void(*T_PF_SA_RESTORER)(void);		//信号恢复函数指针
+typedef void(*T_PF_SA_RESTORER)();			//信号恢复函数指针
 
 #endif

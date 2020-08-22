@@ -50,8 +50,6 @@ T_PF_IRQ_HANDLER	IRQ_TABLE[NR_IRQ];		//8259中断调用子程序表
 //---------------------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------------------
-//8259相关函数声明
-PUBLIC	void	init8259A();
 //系统错误中断处理程序
 void	syserrHandler(int err_no, int err_code, int eip, int cs, int eflags);
 void	divideError();
@@ -71,22 +69,27 @@ void	generalProtection();
 void	pageFault();
 void	coprError();
 //8259中断处理函数声明s
-void hwint00();
-void hwint01();
-void hwint02();
-void hwint03();
-void hwint04();
-void hwint05();
-void hwint06();
-void hwint07();
-void hwint08();
-void hwint09();
-void hwint10();
-void hwint11();
-void hwint12();
-void hwint13();
-void hwint14();
-void hwint15();
+void	hwint00();
+void	hwint01();
+void	hwint02();
+void	hwint03();
+void	hwint04();
+void	hwint05();
+void	hwint06();
+void	hwint07();
+void	hwint08();
+void	hwint09();
+void	hwint10();
+void	hwint11();
+void	hwint12();
+void	hwint13();
+void	hwint14();
+void	hwint15();
+//---------------------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------------------
+//中断处理子程序
+PUBLIC	void	timerHandler(int irq);
 //---------------------------------------------------------------------------------------
 
 #endif
