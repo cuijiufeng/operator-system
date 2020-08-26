@@ -3,7 +3,9 @@
 ;==================================================================================================
 
 extern IRQ_TABLE
+extern SYS_CALL_TABLE
 extern syserrHandler
+global sysCall
 global divideError,singleStepException,nmi,breakpointException,overflow,boundsCheck,invalOpcode,coprNotAvailable
 global doubleFault,coprSegOverrun,invalTss,segmentNotPresent,stackException,generalProtection,pageFault,coprError
 global hwint00,hwint01,hwint02,hwint03,hwint04,hwint05,hwint06,hwint07,hwint08,hwint09,hwint10,hwint11,hwint12,hwint13,hwint14,hwint15
@@ -37,7 +39,7 @@ INT_S_CTLMASK	equ	0A1H					;从8259的偶地址端口A1H
 %macro load_reg 0
 	pop gs						;┓
 	pop fs						;┃   
-	pop es						;┣ 保存ring3时寄存器的值
+	pop es						;┣ 恢复ring3时寄存器的值
 	pop ds						;┃      
 	popad						;┛
 %endmacro
@@ -169,6 +171,7 @@ coprError:
 	iret
 ;==================================================================================================================
 
+;8259中断
 ;==================================================================================================================
 ;带参数宏		从片
 %macro hwint_master 1
@@ -253,7 +256,7 @@ hwint07:
 	out INT_S_CTLMASK,al		; ┛ 
 		
 	load_reg
-	ret
+	iret
 %endmacro
 ;------------------------------------------------------------------------------------------------------------------
 ALIGN 16
@@ -287,4 +290,29 @@ hwint14:
 ALIGN 16
 hwint15:
 	hwint_slave 15
+;==================================================================================================================
+
+;系统调用中断
+;==================================================================================================================
+sysCall:
+	sti							;开中断
+	push ds						;┓   
+	push es						;┣ 保存ring3时寄存器的值
+	push fs						;┃      
+	push gs						;┛ 
+	push ebx					;系统调用参数可以有三个
+	push ecx
+	push edx
+	mov dx,ss
+	mov ds,dx					;┓
+	mov es,dx					;┃ 
+	mov fs,dx					;┣ 使用ring0时的段寄存器的值
+	mov gs,dx					;┛
+	call [SYS_CALL_TABLE+eax*4]
+	add	esp, 4*3				;清理栈系统调用参数
+	pop gs						;┓
+	pop fs						;┃   
+	pop es						;┣ 恢复ring3时寄存器的值
+	pop ds						;┛ 
+	iret
 ;==================================================================================================================

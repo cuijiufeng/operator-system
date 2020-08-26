@@ -11,6 +11,7 @@
 
 PUBLIC	void	initTime()
 {
+	TICKS = 0;
 	TIME time;
 	outByte(CMOS_CTL, CMOS_DATA_SEC);
 	time.tm_sec = BCD_TO_BIN(inByte(CMOS_VALUE));	//∂¡»°√Î ˝

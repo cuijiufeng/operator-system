@@ -13,11 +13,9 @@
 #include	<time.h>
 
 //这些是在setup里确定的
-#define	EXT_MEM_SIZE	(*((t_32*)0x70000))
-#define	ROOT_DEV_TYPE	(*((t_32*)0x70004))
-#define	DRIVER_INFO		((t_8*)0x70010)
-//页表地址
-#define	PAGE_DIR	0x90000
+#define	EXT_MEM_SIZE	(*((t_32*)0x9A000))
+#define	ROOT_DEV_TYPE	(*((t_32*)0x9A004))
+#define	DRIVER_INFO		((t_8*)0x9A010)
 
 PUBLIC void cinit()
 {

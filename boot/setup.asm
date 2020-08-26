@@ -220,7 +220,7 @@ setupPageing:
 	push eax								;暂存需要初始化的页表个数
 		
 	;初始化页目录
-	mov ecx,eax										;循环次数
+	mov ecx,eax								;循环次数
 	mov ax,SELECTOR_FLOAT_RW
 	mov es,ax
 	mov edi,PAGE_DIR_BASE
@@ -305,5 +305,7 @@ memCpy:
 ;==================================================================================================
 [section .stack]
 ALIGN	32
-	times	100	db	0
+	times	256	db	0
+TOP_OF_STACK_SETUP:										;实模式下的栈段
+	times	256	db	0
 	TOP_OF_STACK	equ	BASE_OF_SETUP_PHY_ADDR + $		;保护模式下的栈段

@@ -4,11 +4,11 @@
  */
 #ifndef _OS_MM_H_
 #define	_OS_MM_H_
-#define	PAGE_DIR	0x90000
+#define	PAGE_DIR	0x0
 //页大小
 #define	PAGE_SIZE	4096
 //内存大小
-#define	MEM_SIZE	(60*1024*1024)
+#define	MEM_SIZE	(32*1024*1024)
 //二级分页占用的内存大小
 #define	PAGES_SIZE	(MEM_SIZE>>12)
 
@@ -18,6 +18,7 @@ t_8	MEM_MAP[PAGES_SIZE];					//-1表示内存不可用，0表示内存可用，>
 
 //---------------------------------------------------------------------------------------
 PUBLIC	void	initMemory(t_32 mem_size);
+PUBLIC	u_32	getFreePage();
 //---------------------------------------------------------------------------------------
 
 #endif // !_OS_MM_H_

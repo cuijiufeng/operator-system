@@ -36,16 +36,14 @@ memset:
 	push ebp
 	mov ebp, esp
 	push edi
-	push edx
 	push ecx
 		
 	mov edi, [ss:ebp+8]					;Destination
-	mov edx, [ss:ebp+12]				;ch
+	mov eax, [ss:ebp+12]				;ch
 	mov ecx, [ss:ebp+16]				;size
 	cld
 	rep stosb
 	pop ecx
-	pop edx
 	pop edi
 	mov esp, ebp
 	pop ebp

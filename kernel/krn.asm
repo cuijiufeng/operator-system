@@ -6,6 +6,7 @@
 global	_start						;导出_start
 ;导入(声明)
 extern	cinit
+extern	main
 extern	KERNEL_STACK				;内核栈
 extern	INIT_TASKS					;初始任务的栈
 extern	GDT_PTR						;gdtr寄存器的值
@@ -48,6 +49,6 @@ _1:
 	mov es, ax
 	mov fs, ax
 	mov gs, ax
-	ud2
-	jmp $
+MAIN:
+	call	main
 ;==================================================================================================

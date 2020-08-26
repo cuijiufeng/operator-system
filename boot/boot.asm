@@ -22,7 +22,7 @@ LABEL_START:
 		mov ax,0B800H
 		mov gs,ax
 		;boot状态下的堆栈栈顶指针
-		mov sp,TOP_OF_STACK_BOOT
+		mov sp,7c00H
 		
 		;清空屏幕
 		call clearScreen

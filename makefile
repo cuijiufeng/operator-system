@@ -3,7 +3,7 @@
 #==============================================================================
 include	makefile.head
 
-LDFLAGS		+= -Ttext 0x0 -e _start
+LDFLAGS		+= -Ttext 0x10000 -e _start
 OBJS		= kernel/kernel.o lib/lib.o init/init.o mm/mm.o
 
 .PHONY : all clean

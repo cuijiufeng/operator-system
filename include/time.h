@@ -19,6 +19,9 @@
 #define	CMOS_DATA_YEAR	0x89
 //读取出来的数值是BCD码，BCD码是用4位二进制来表示十进制数的
 #define	BCD_TO_BIN(val)	(((val)&0xF) + ((val)>>4)*10)
+
+u_32	TICKS;
+
 typedef struct time {
 	u_16	tm_sec;		//秒数[0-59]
 	u_16	tm_min;		//分钟数[0-59]

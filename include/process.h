@@ -6,6 +6,11 @@
 #define	_OS_PROCESS_H_
 #define	NR_INIT_TASKS	1
 #define	NR_TASKS	64
+#define TASK_RUNNING			0	//正在运行
+#define TASK_INTERRUPTIBLE		1	//可中断的
+#define TASK_UNINTERRUPTIBLE	2	//不可中断的
+#define TASK_ZOMBIE				3	//
+#define TASK_STOPPED			4	//停止
 //进程控制块PCB
 typedef	struct task_struct {
 	//这些是硬编码的-别碰
@@ -64,6 +69,11 @@ PROCESS* CURRENT = &(INIT_TASKS[0].task);
 //---------------------------------------------------------------------------------------
 //相关函数声明
 PUBLIC	void initSchedule();
+PUBLIC	t_32	findEmptyProcess();
+PUBLIC	t_32	copyProcess(int nr, long ebp, long edi, long esi, long none,
+					long edx, long ecx, long ebx,
+					long gs, long fs, long es, long ds,
+					long eip, long cs, long eflags, long esp, long ss);
 //---------------------------------------------------------------------------------------
 
 #endif // !_OS_PROCESS_H_

@@ -43,6 +43,8 @@
 #define	INT_VECTOR_PROTECTION		0xD
 #define	INT_VECTOR_PAGE_FAULT		0xE
 #define	INT_VECTOR_COPROC_ERR		0x10
+//系统调用中断号
+#define	INT_VECTOR_SYSCALL			0x80
 //---------------------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------------------
@@ -51,7 +53,6 @@ T_PF_IRQ_HANDLER	IRQ_TABLE[NR_IRQ];		//8259中断调用子程序表
 
 //---------------------------------------------------------------------------------------
 //系统错误中断处理程序
-void	syserrHandler(int err_no, int err_code, int eip, int cs, int eflags);
 void	divideError();
 void	singleStepException();
 void	nmi();
@@ -90,6 +91,7 @@ void	hwint15();
 //---------------------------------------------------------------------------------------
 //中断处理子程序
 PUBLIC	void	timerHandler(int irq);
+PUBLIC	void	syserrHandler(int err_no, int err_code, int eip, int cs, int eflags);
 //---------------------------------------------------------------------------------------
 
 #endif

@@ -33,3 +33,26 @@ PUBLIC	void	initMemory(t_32 mem_size)
 		}
 	}
 }
+
+//寻找空闲的分页，找到返回分页的真实地址，失败返回0
+PUBLIC	u_32	getFreePage()
+{
+	int i, j;
+	for (i = 0; i < PAGES_SIZE; i++)
+	{
+		//寻找空闲的分页
+		if (MEM_MAP[i] == 0)
+		{
+			MEM_MAP[i] = 1;		//设置内存已经被映射
+			u_32 addr = i << 12;//内存面的地址
+			//清空内存中的数据
+			for (j = addr; j < (4096+addr); j+=4)
+			{
+				*((u_32*)j) = 0;
+			}
+			return addr;
+		}
+	}
+	//如果已经没有空闲的分页返回0
+	return 0;
+}

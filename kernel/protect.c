@@ -3,6 +3,7 @@
  * 保护模式相关操作及初始化
  */
 #include	<type.h>
+#include	<syscall.h>
 #include	<mm.h>
 #include	<protect.h>
 #include	<int.h>
@@ -61,6 +62,9 @@ PUBLIC void initIdtDesc()
 	setIdtDesc(INT_VECTOR_IRQ8 + 5, DA_386IGate, hwint13, PRIVILEGE_KERNEL);
 	setIdtDesc(INT_VECTOR_IRQ8 + 6, DA_386IGate, hwint14, PRIVILEGE_KERNEL);
 	setIdtDesc(INT_VECTOR_IRQ8 + 7, DA_386IGate, hwint15, PRIVILEGE_KERNEL);
+
+	//系统调用中断
+	setIdtDesc(INT_VECTOR_SYSCALL, DA_386IGate, sysCall, PRIVILEGE_USER);
 }
 
 //设置8259中断处理子程序
