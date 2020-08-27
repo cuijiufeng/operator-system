@@ -33,9 +33,9 @@ PUBLIC	void initSchedule()
 		SELECTOR_FIRST_TASK_LDT, 0, sizeof(TSS));
 
 	//设置tss这个描述符
-	setGdtDesc(&GDT[SELECTOR_FIRST_TASK_TSS>>3], &INIT_TASKS[0].task.tss, sizeof(INIT_TASKS[0].task.tss), DA_386TSS);
+	setGdtDesc(&GDT[SELECTOR_FIRST_TASK_TSS>>3], &INIT_TASKS[0].task.tss, sizeof(TSS), DA_386TSS);
 	//设置ldt描述符表在gdt中
-	setGdtDesc(&GDT[SELECTOR_FIRST_TASK_LDT>>3], &INIT_TASKS[0].task.ldt, sizeof(INIT_TASKS[0].task.ldt), DA_LDT);
+	setGdtDesc(&GDT[SELECTOR_FIRST_TASK_LDT>>3], &INIT_TASKS[0].task.ldt, sizeof(DESCRIPTOR) * 3, DA_LDT);
 }
 
 PUBLIC	t_32	findEmptyProcess()
@@ -115,10 +115,14 @@ PUBLIC	t_32	copyProcess(t_32 nr, u_32 ebp, u_32 edi, u_32 esi, u_32 gs, u_32 non
 	p->tss.iobase = sizeof(TSS);
 	if(copyMem(nr, p))
 	{
-		//todo 释放内存页
+		//释放内存页
+		TASKS[nr] = NULL;
+		freePage((u_32)p);
 		return -1;
 	}
-	//todo
+	//设置tss与ldt
+	setGdtDesc(&GDT[(SELECTOR_FIRST_TASK_TSS >> 3) + nr], &(TASKS[nr]->tss), sizeof(TSS), DA_386TSS);
+	setGdtDesc(&GDT[(SELECTOR_FIRST_TASK_LDT >> 3) + nr], &(TASKS[nr]->ldt), sizeof(DESCRIPTOR)*3, DA_LDT);
 	return last_pid;			//如果拷贝进程成功，则返回子进程的的pid
 }
 
@@ -142,7 +146,8 @@ PRIVATE	t_32	copyMem(t_32 nr, PROCESS* p)
 	//其实并没有真正的拷贝进程的内存页，而是让新进程与父进程的线性地址映射到同一段物理地址上，两个进程共享这段内存
 	if(copyPageTables(new_data_base, old_data_base, data_limit+1))
 	{
-		
+		freePageTables(new_data_base, data_limit);//释放页表映射
+		return -1;
 	}
 	return 0;
 }

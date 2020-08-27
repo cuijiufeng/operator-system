@@ -8,6 +8,7 @@ global	lgdtr
 global	lidtr
 global	ltr
 global	lldtr
+global	loadCR3
 global	getDescLimit
 global	disableIrq
 global	enableIrq
@@ -114,6 +115,14 @@ lldtr:
 getDescLimit:
 	mov ax, [ss:esp+4]
 	lsl eax, ax				;加载段界限指令
+	ret
+;-------------------------------------------------------------------------------------------
+
+;void	loadCR3(u_32 addr);
+;-------------------------------------------------------------------------------------------
+loadCR3:
+	mov eax, [ss:esp+4]
+	mov cr3, eax
 	ret
 ;-------------------------------------------------------------------------------------------
 

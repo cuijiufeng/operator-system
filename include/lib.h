@@ -12,6 +12,7 @@ void	lgdtr(u_32 gdt_ptr);
 void	lidtr(u_32 idt_ptr);
 void	ltr(u_16 ltr);
 void	lldtr(u_16 ldt);
+void	loadCR3(u_32 addr);
 u_32	getDescLimit(u_16 segment);
 void	disableIrq(int irq);
 void 	enableIrq(int irq);
