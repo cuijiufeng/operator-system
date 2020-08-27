@@ -73,6 +73,18 @@ PUBLIC	void	setIrqHandler(int irq, T_PF_IRQ_HANDLER handler)
 	IRQ_TABLE[irq] = handler;
 }
 
+PUBLIC	u_32	getDescBase(DESCRIPTOR* p_desc)
+{
+	return ((p_desc->base_high << 24) | (p_desc->base_mid << 16) | p_desc->base_low);
+}
+
+PUBLIC	void	setDescBase(DESCRIPTOR* p_desc, u_32 base)
+{
+	p_desc->base_low = base & 0xFFFF;
+	p_desc->base_mid = (base >> 16) & 0xFF;
+	p_desc->base_high = (base >> 24) & 0xFF;
+}
+
 //初始化一个IDT项			  向量号		类型			中断程序偏移				特权级
 PUBLIC	void	setIdtDesc(u_8 vector, u_8 desc_type, T_PF_INT_HANDLER handler, u_8 privilege)
 {

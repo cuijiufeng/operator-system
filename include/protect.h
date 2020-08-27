@@ -111,6 +111,8 @@ PUBLIC	void	init8259A();
 PUBLIC	void	setIrqHandler(int irq, T_PF_IRQ_HANDLER handler);
 //相关函数声明
 PUBLIC 	void 	initIdtDesc();
+PUBLIC	void	setDescBase(DESCRIPTOR* p_desc, u_32 base);
+PUBLIC	u_32	getDescBase(DESCRIPTOR* p_desc);
 PUBLIC	void	setIdtDesc(u_8 vector, u_8 desc_type, T_PF_INT_HANDLER handler, u_8 privilege);
 PUBLIC	void	setGdtDesc(DESCRIPTOR* p_desc, u_32 base, u_32 limit, u_16 attribute);
 PUBLIC	void	setTss(TSS* p_tss, u_32	backlink, u_32 esp0, u_32 ss0, u_32 esp1, u_32 ss1, u_32 esp2, u_32 ss2, u_32 cr3, u_32 eip, u_32 flags,

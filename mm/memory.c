@@ -9,7 +9,7 @@ PUBLIC	void	initMemory(t_32 mem_size)
 {
 	if (mem_size > 0x3C00000)
 	{
-		mem_size = 0x3C00000;					//暂时不能超过60M内存，因为页表在0x90000
+		mem_size = 0x3C00000;					//暂时不能超过60M内存
 	}
 	mem_size &= 0xFFFFF000;						//小于4k的内存忽略
 	if (mem_size < 0x400000)
@@ -55,4 +55,32 @@ PUBLIC	u_32	getFreePage()
 	}
 	//如果已经没有空闲的分页返回0
 	return 0;
+}
+
+//复制分页数据，以达到让两个线性地址映射到同一段物理地址上去
+PUBLIC	t_32	copyPageTables(u_32 dest_addr, u_32 src_addr, u_32 size)
+{
+	u_32 from_dir, to_dir;
+	//因为一个一级页表项可以管理4MB内存，所以地址要4MB内存对齐，不然有些麻烦
+	if((dest_addr&0x3ffffff) || (src_addr&0x3ffffff))
+	{
+		return -1;
+	}
+	from_dir = ((dest_addr>>22)<<2);	//dest_addr/4MB为地址在一级页中的项索引，再*4为地址的一级页页项内存地址
+	to_dir = ((src_addr>>22)<<2);
+	size = ((size+0x3ffffff)>>22);		//size+0x3ffffff是如果内存大小字节数不足4MB时也拷贝一个一级页页项
+	//遍历一级页表项并复制
+	for(; size-- > 0; from_dir+=4, to_dir+=4)
+	{
+		//如果to_dir页项已经是存在的则失败
+		if(PG_P & *((u_32*)to_dir))
+		{
+			return -1;
+		}
+		//如果from_dir页项不存在,继续下一项
+		if(!(PG_P & *((u_32*)from_dir)))
+		{
+			continue;
+		}
+	}
 }

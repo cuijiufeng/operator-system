@@ -70,10 +70,11 @@ PROCESS* CURRENT = &(INIT_TASKS[0].task);
 //相关函数声明
 PUBLIC	void initSchedule();
 PUBLIC	t_32	findEmptyProcess();
-PUBLIC	t_32	copyProcess(int nr, long ebp, long edi, long esi, long none,
-					long edx, long ecx, long ebx,
-					long gs, long fs, long es, long ds,
-					long eip, long cs, long eflags, long esp, long ss);
+PRIVATE	t_32	copyMem(t_32 nr, PROCESS* p);
+PUBLIC	t_32	copyProcess(t_32 nr, u_32 ebp, u_32 edi, u_32 esi, u_32 gs, u_32 none,
+			u_32 ebx, u_32 ecx, u_32 edx,
+			u_32 fs, u_32 es, u_32 ds,
+			u_32 eip, u_32 cs, u_32 eflags, u_32 esp, u_32 ss);
 //---------------------------------------------------------------------------------------
 
 #endif // !_OS_PROCESS_H_

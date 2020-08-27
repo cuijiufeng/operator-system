@@ -36,9 +36,8 @@ PUBLIC void cinit()
 	*p_idt_limit = IDT_SIZE * sizeof(GATE) - 1;
 	*p_idt_base = (t_32)&IDT;
 
-	lgdt(GDT_PTR);	//设置新的GDT
-	lidt(IDT_PTR);	//设置新的IDT
-	flushSegR();	//刷新段寄存器的值
+	lgdtr(GDT_PTR);	//设置新的GDT
+	lidtr(IDT_PTR);	//设置新的IDT
 	
 	//ROOT_DEV
 	ROOT_DEV = ROOT_DEV_TYPE;
@@ -53,5 +52,5 @@ PUBLIC void cinit()
 
 	//设置ltr、lldt
 	ltr(SELECTOR_FIRST_TASK_TSS | SA_RPL3);
-	lldt(SELECTOR_FIRST_TASK_LDT | SA_RPL3);
+	lldtr(SELECTOR_FIRST_TASK_LDT | SA_RPL3);
 }
