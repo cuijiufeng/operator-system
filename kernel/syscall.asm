@@ -24,12 +24,9 @@ sysFork:
 	call findEmptyProcess
 	cmp eax, -1
 	je _1
-	push esi
-	push edi
-	push ebp
-	push eax
+	push eax			;½ø³Ì²ÛÎ»ºÅ
 	call copyProcess
-	add esp, 16
+	add esp, 4
 _1:
 	ret
 ;==================================================================================================

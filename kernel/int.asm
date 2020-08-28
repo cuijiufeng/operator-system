@@ -18,14 +18,9 @@ INT_S_CTL		equ	0A0H					;从8259的偶地址端口A0H
 INT_S_CTLMASK	equ	0A1H					;从8259的偶地址端口A1H
 ;==================================================================================================================
 
-;中断发生时的寄存器保存工作
+;切换段寄存器值
 ;==================================================================================================================
-%macro save_reg 0
-	pushad						;┓
-	push ds						;┃   
-	push es						;┣ 保存ring3时寄存器的值
-	push fs						;┃      
-	push gs						;┛ 
+%macro use_ring0 0 
 	mov dx,ss
 	mov ds,dx					;┓
 	mov es,dx					;┃ 
@@ -34,172 +29,168 @@ INT_S_CTLMASK	equ	0A1H					;从8259的偶地址端口A1H
 %endmacro
 ;==================================================================================================================
 
+;中断发生时的寄存器保存工作
+;==================================================================================================================
+%macro save_reg 0
+	push ds						;┓   
+	push es						;┃
+	push fs						;┃
+	push gs						;┣ 保存ring3时寄存器的值
+	pushf						;┃
+	pushad						;┛
+%endmacro
+;==================================================================================================================
+
 ;中断返回时恢复寄存器的值
 ;==================================================================================================================
-%macro load_reg 0
-	pop gs						;┓
+%macro load_reg 0  
+	popad						;┓  
+	popf						;┃ 
+	pop gs						;┣ 恢复ring3时寄存器的值
 	pop fs						;┃   
-	pop es						;┣ 恢复ring3时寄存器的值
-	pop ds						;┃      
-	popad						;┛
+	pop es						;┃ 
+	pop ds						;┛ 
 %endmacro
 ;==================================================================================================================
 
 ;中断、异常-------异常
 ;==================================================================================================================
 divideError:
-	save_reg
+	use_ring0
 	push 0FFFFFFFFH				;压入中断出错码
 	push 0H						;压入中断向量号
 	call syserrHandler
 	add esp,8
-	load_reg
-	iret
+	jmp $
 singleStepException:
-	save_reg
+	use_ring0
 	push 0FFFFFFFFH
 	push 1H
 	call syserrHandler
 	add esp,8
-	load_reg
-	iret
+	jmp $
 nmi:
-	save_reg
+	use_ring0
 	push 0FFFFFFFFH
 	push 2H
 	call syserrHandler
 	add esp,8
-	load_reg
-	iret
+	jmp $
 breakpointException:
-	save_reg
+	use_ring0
 	push 0FFFFFFFFH
 	push 3H
 	call syserrHandler
 	add esp,8
-	load_reg
-	iret
+	jmp $
 overflow:
-	save_reg
+	use_ring0
 	push 0FFFFFFFFH
 	push 4H
 	call syserrHandler
 	add esp,8
-	load_reg
-	iret
+	jmp $
 boundsCheck:
-	save_reg
+	use_ring0
 	push 0FFFFFFFFH
 	push 5H
 	call syserrHandler
 	add esp,8
-	load_reg
-	iret
+	jmp $
 invalOpcode:
-	save_reg
+	use_ring0
 	push 0FFFFFFFFH
 	push 6H
 	call syserrHandler
 	add esp,8
-	load_reg
-	iret
+	jmp $
 coprNotAvailable:
-	save_reg
+	use_ring0
 	push 0FFFFFFFFH
 	push 7H
 	call syserrHandler
 	add esp,8
-	load_reg
-	iret
+	jmp $
 doubleFault:
-	save_reg
+	use_ring0
 	push 8H
 	call syserrHandler
 	add esp,4
-	load_reg
-	iret
+	jmp $
 coprSegOverrun:
-	save_reg
+	use_ring0
 	push 0FFFFFFFFH
 	push 9H
 	call syserrHandler
 	add esp,8
-	load_reg
-	iret
+	jmp $
 invalTss:
-	save_reg
+	use_ring0
 	push 0AH
 	call syserrHandler
 	add esp,4
-	load_reg
-	iret
+	jmp $
 segmentNotPresent:
-	save_reg
+	use_ring0
 	push 0BH
 	call syserrHandler
 	add esp,4
-	load_reg
-	iret
+	jmp $
 stackException:
-	save_reg
+	use_ring0
 	push 0CH
 	call syserrHandler
 	add esp,4
-	load_reg
-	iret
+	jmp $
 generalProtection:
-	save_reg
+	use_ring0
 	push 0DH
 	call syserrHandler
 	add esp,4
-	load_reg
-	iret
+	jmp $
 pageFault:
-	save_reg
+	use_ring0
 	push 0EH
 	call syserrHandler
 	add esp,4
-	load_reg
-	iret
+	jmp $
 coprError:
-	save_reg
+	use_ring0
 	push 0FFFFFFFFH
 	push 0FH
 	call syserrHandler
 	add esp,8
-	load_reg
-	iret
+	jmp $
 ;==================================================================================================================
 
 ;8259中断
 ;==================================================================================================================
-;带参数宏		从片
+;带参数宏		 主片
 %macro hwint_master 1
 	save_reg
+	use_ring0
 		
 	in al,INT_M_CTLMASK			; ┓ 
 	or al,(1<<%1)				; ┣ 不允许再发生时钟中断
 	out INT_M_CTLMASK,al		; ┛ 
-		
 	mov al,	EOI					;中断结束控制字
 	out	INT_M_CTL, al			;告诉8259中断结束。这样就可以不停的发生中断
 		
 	sti							;为了在执行中断程序的时候还可以响应中断，所以要人为打开中断。CPU在响应中断的时候会自动关闭中断
-
 	push %1						;irq号
 	call [(IRQ_TABLE + 4 * %1)]	;调用中断处理子程序
 	add esp,4					;由调用者清理堆栈，清理掉调用函数前压入的参数irq
 		
+	load_reg
+	
 	in al,INT_M_CTLMASK			; ┓ 
 	and al,~(1<<%1)				; ┣ 允许再发生时钟中断
 	out INT_M_CTLMASK,al		; ┛ 
-		
-	load_reg
 	iret
 %endmacro
 ;------------------------------------------------------------------------------------------------------------------
 ALIGN 16						;此代码以16字节对齐
-hwint00:						;中断发生时会切换到内核态，即由ring1-->ring0
+hwint00:						;中断发生时会切换到内核态，即由ring3-->ring0
 	hwint_master 0		;irq号
 		
 ALIGN 16
@@ -235,27 +226,26 @@ hwint07:
 ;带参数宏		从片
 %macro hwint_slave 1
 	save_reg
+	use_ring0
 		
 	in al,INT_S_CTLMASK			; ┓ 
 	or al,(1<<(%1-8))			; ┣ 不允许再发生时钟中断
 	out INT_S_CTLMASK,al		; ┛ 
-		
 	mov al,	EOI					;中断结束控制字
 	out	INT_M_CTL, al			;告诉8259中断结束。这样就可以不停的发生中断
 	mov al,	EOI					;中断结束控制字
 	out	INT_S_CTL, al			;告诉8259中断结束。这样就可以不停的发生中断
 		
 	sti							;为了在执行中断程序的时候还可以响应中断，所以要人为打开中断。CPU在响应中断的时候会自动关闭中断
-
 	push %1						;irq号
 	call [(IRQ_TABLE + 4 * %1)]	;调用中断处理子程序
 	add esp,4					;由调用者清理堆栈，清理掉调用函数前压入的参数irq
 		
+	load_reg
+	
 	in al,INT_S_CTLMASK			; ┓ 
 	and al,~(1<<(%1-8))			; ┣ 允许再发生时钟中断
 	out INT_S_CTLMASK,al		; ┛ 
-		
-	load_reg
 	iret
 %endmacro
 ;------------------------------------------------------------------------------------------------------------------
@@ -295,24 +285,14 @@ hwint15:
 ;系统调用中断
 ;==================================================================================================================
 sysCall:
+	save_reg
 	sti							;开中断
-	push ds						;┓   
-	push es						;┣ 保存ring3时寄存器的值
-	push fs						;┃      
-	push gs						;┛ 
 	push ebx					;系统调用参数可以有三个
 	push ecx
 	push edx
-	mov dx,ss
-	mov ds,dx					;┓
-	mov es,dx					;┃ 
-	mov fs,dx					;┣ 使用ring0时的段寄存器的值
-	mov gs,dx					;┛
+	use_ring0
 	call [SYS_CALL_TABLE+eax*4]
 	add	esp, 4*3				;清理栈系统调用参数
-	pop gs						;┓
-	pop fs						;┃   
-	pop es						;┣ 恢复ring3时寄存器的值
-	pop ds						;┛ 
+	load_reg
 	iret
 ;==================================================================================================================

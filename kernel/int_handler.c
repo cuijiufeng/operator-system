@@ -5,6 +5,7 @@
 #include	<type.h>
 #include	<int.h>
 #include	<lib.h>
+#include	<time.h>
 
 PUBLIC	void	syserrHandler(int err_no, int err_code, int eip, int cs, int eflags)
 {
@@ -64,4 +65,26 @@ PUBLIC	void	syserrHandler(int err_no, int err_code, int eip, int cs, int eflags)
 //时钟中断处理子程序
 PUBLIC	void	timerHandler(int irq)
 {
+	TICKS++;
+	int i, num = TICKS;
+	char ch;
+	char str[8], *p = str;
+	for (i = 28; i >= 0; i -= 4)
+	{
+		ch = (num >> i) & 0xF;
+		ch += '0';
+		if (ch > '9')
+		{
+			ch += 7;
+		}
+		*p++ = ch;
+	}
+	*((u_16*)(0xb8000)) = (0x0F00 | str[0]);
+	*((u_16*)(0xb8002)) = (0x0F00 | str[1]);
+	*((u_16*)(0xb8004)) = (0x0F00 | str[2]);
+	*((u_16*)(0xb8006)) = (0x0F00 | str[3]);
+	*((u_16*)(0xb8008)) = (0x0F00 | str[4]);
+	*((u_16*)(0xb800A)) = (0x0F00 | str[5]);
+	*((u_16*)(0xb800C)) = (0x0F00 | str[6]);
+	*((u_16*)(0xb800E)) = (0x0F00 | str[7]);
 }

@@ -1,11 +1,15 @@
 /**
- * 2020Äê08ÔÂ22ÈÕ 20/40/26
- * ½øÈëÓÃ»§Ì¬Ö®ºó
+ * 2020å¹´08æœˆ22æ—¥ 20/40/26
+ * è¿›å…¥ç”¨æˆ·æ€ä¹‹åŽ
  */
 #include	<type.h>
 
 PUBLIC	void	main()
 {
-	fork();
+	//todo
+	if(!fork())
+	{
+		
+	}
 	while (1);
 }

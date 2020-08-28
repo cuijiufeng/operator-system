@@ -36,10 +36,6 @@ typedef	struct task_struct {
 	u_16	euid;					//有效用户id
 	u_16	suid;					//保存的用户id
 	u_32	alarm;					//报警定时值
-	u_32	utime;					//用户态运行的时间
-	u_32	stime;					//系统态运行的时间
-	u_32	cutime;					//子进程用户态运行的时间
-	u_32	cstime;					//子进程系统态运行的时间
 	u_32	start_time;				//进程开始运行时刻
 	// 文件系统信息
 	t_32	tty;					//进程使用tty终端的子设备号 -1表示没有使用tty
@@ -71,10 +67,10 @@ PROCESS* CURRENT = &(INIT_TASKS[0].task);
 PUBLIC	void initSchedule();
 PUBLIC	t_32	findEmptyProcess();
 PRIVATE	t_32	copyMem(t_32 nr, PROCESS* p);
-PUBLIC	t_32	copyProcess(t_32 nr, u_32 ebp, u_32 edi, u_32 esi, u_32 gs, u_32 none,
-			u_32 ebx, u_32 ecx, u_32 edx,
-			u_32 fs, u_32 es, u_32 ds,
-			u_32 eip, u_32 cs, u_32 eflags, u_32 esp, u_32 ss);
+PUBLIC	t_32	copyProcess(t_32 nr, u_32 none, u_32 edx, u_32 ecx, u_32 ebx, //edx,ecx,ebx系统调用的参数
+			u_32 EDI, u_32 ESI, u_32 EBP, u_32 ESP, u_32 EBX, u_32 EDX, u_32 ECX, u_32 EAX, u_32 eflag,
+			u_32 gs, u_32 fs, u_32 es, u_32 ds,					//保存ring3时寄存器的值
+			u_32 eip, u_32 cs, u_32 eflags, u_32 esp, u_32 ss);	//ring3时的值
 //---------------------------------------------------------------------------------------
 
 #endif // !_OS_PROCESS_H_

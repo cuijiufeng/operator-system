@@ -66,9 +66,9 @@ PUBLIC	t_32	findEmptyProcess()
 }
 
 //拷贝进程，返回进程的pid。nr是进程槽位号，none是系统调用中断处理子程序的返回地址
-PUBLIC	t_32	copyProcess(t_32 nr, u_32 ebp, u_32 edi, u_32 esi, u_32 gs, u_32 none,
-	u_32 ebx, u_32 ecx, u_32 edx,	//系统调用的参数
-	u_32 fs, u_32 es, u_32 ds,		//保存ring3时寄存器的值
+PUBLIC	t_32	copyProcess(t_32 nr, u_32 none, u_32 edx, u_32 ecx, u_32 ebx, //edx,ecx,ebx系统调用的参数
+	u_32 EDI, u_32 ESI, u_32 EBP, u_32 ESP, u_32 EBX, u_32 EDX, u_32 ECX, u_32 EAX, u_32 eflag,
+	u_32 gs, u_32 fs, u_32 es, u_32 ds,					//保存ring3时寄存器的值
 	u_32 eip, u_32 cs, u_32 eflags, u_32 esp, u_32 ss)	//ring3时的值
 {
 	PROCESS* p;
@@ -88,8 +88,6 @@ PUBLIC	t_32	copyProcess(t_32 nr, u_32 ebp, u_32 edi, u_32 esi, u_32 gs, u_32 non
 	p->signal = 0;
 	p->alarm = 0;
 	p->leader = 0;		/* process leadership doesn't inherit */
-	p->utime = p->stime = 0;
-	p->cutime = p->cstime = 0;
 	p->start_time = TICKS;
 	p->tss.backlink = 0;
 	p->tss.esp0 = KERNEL_STACK + PAGE_SIZE;
@@ -97,13 +95,13 @@ PUBLIC	t_32	copyProcess(t_32 nr, u_32 ebp, u_32 edi, u_32 esi, u_32 gs, u_32 non
 	p->tss.eip = eip;
 	p->tss.flags = eflags;
 	p->tss.eax = 0;
-	p->tss.ecx = ecx;
-	p->tss.edx = edx;
-	p->tss.ebx = ebx;
-	p->tss.esp = esp;
-	p->tss.ebp = ebp;
-	p->tss.esi = esi;
-	p->tss.edi = edi;
+	p->tss.ecx = ECX;
+	p->tss.edx = EDX;
+	p->tss.ebx = EBX;
+	p->tss.esp = ESP;
+	p->tss.ebp = EBP;
+	p->tss.esi = ESI;
+	p->tss.edi = EDI;
 	p->tss.es = es & 0xffff;
 	p->tss.cs = cs & 0xffff;
 	p->tss.ss = ss & 0xffff;
