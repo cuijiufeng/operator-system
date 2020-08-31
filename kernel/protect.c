@@ -3,10 +3,16 @@
  * 保护模式相关操作及初始化
  */
 #include	<type.h>
-#include	<syscall.h>
 #include	<mm.h>
 #include	<protect.h>
 #include	<int.h>
+#include	<syscall.h>
+
+u_8			KERNEL_STACK[PAGE_SIZE];	//内核栈
+u_8			GDT_PTR[6];					//0~15:limit	16~47:base	用于保存寄存器gdtr中的值，前两个字节保存gdt的界限，后四个字节保存gdt的地址
+DESCRIPTOR	GDT[GDT_SIZE];				//定义描述符表
+u_8			IDT_PTR[6];					//中断描述符表基址与界限
+GATE		IDT[IDT_SIZE];				//中断描述符表
 
 PUBLIC	void	init8259A()
 {
@@ -67,10 +73,10 @@ PUBLIC void initIdtDesc()
 	setIdtDesc(INT_VECTOR_SYSCALL, DA_386IGate, sysCall, PRIVILEGE_USER);
 }
 
-//设置8259中断处理子程序
-PUBLIC	void	setIrqHandler(int irq, T_PF_IRQ_HANDLER handler)
+//设置某个8259中断处理程序的子程序
+PUBLIC	void	putIrqHandler(int irq, T_PF_IRQ_HANDLER handler)
 {
-	IRQ_TABLE[irq] = handler;
+	IRQ_TABLE[irq] = handler;				//设置irq号8259中断处理子程序
 }
 
 PUBLIC	u_32	getDescBase(DESCRIPTOR* p_desc)

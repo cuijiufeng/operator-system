@@ -98,17 +98,17 @@ typedef struct s_tss {
 } TSS;
 
 //---------------------------------------------------------------------------------------
-u_8			KERNEL_STACK[PAGE_SIZE];	//内核栈
-u_8			GDT_PTR[6];					//0~15:limit	16~47:base	用于保存寄存器gdtr中的值，前两个字节保存gdt的界限，后四个字节保存gdt的地址
-DESCRIPTOR	GDT[GDT_SIZE];				//定义描述符表
-u_8			IDT_PTR[6];					//中断描述符表基址与界限
-GATE		IDT[IDT_SIZE];				//中断描述符表
+EXTERN	u_8			KERNEL_STACK[PAGE_SIZE];	//内核栈
+EXTERN	u_8			GDT_PTR[6];					//0~15:limit	16~47:base	用于保存寄存器gdtr中的值，前两个字节保存gdt的界限，后四个字节保存gdt的地址
+EXTERN	DESCRIPTOR	GDT[GDT_SIZE];				//定义描述符表
+EXTERN	u_8			IDT_PTR[6];					//中断描述符表基址与界限
+EXTERN	GATE		IDT[IDT_SIZE];				//中断描述符表
 //---------------------------------------------------------------------------------------
 
 //---------------------------------------------------------------------------------------
 //8259相关函数声明
 PUBLIC	void	init8259A();
-PUBLIC	void	setIrqHandler(int irq, T_PF_IRQ_HANDLER handler);
+PUBLIC	void	putIrqHandler(int irq, T_PF_IRQ_HANDLER handler);
 //相关函数声明
 PUBLIC 	void 	initIdtDesc();
 PUBLIC	void	setDescBase(DESCRIPTOR* p_desc, u_32 base);

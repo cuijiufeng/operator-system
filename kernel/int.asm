@@ -2,8 +2,10 @@
 ; 所有的中断处理程序入口
 ;==================================================================================================
 
+extern CURRENT
 extern IRQ_TABLE
 extern SYS_CALL_TABLE
+extern schedule
 extern syserrHandler
 global sysCall
 global divideError,singleStepException,nmi,breakpointException,overflow,boundsCheck,invalOpcode,coprNotAvailable
@@ -11,6 +13,11 @@ global doubleFault,coprSegOverrun,invalTss,segmentNotPresent,stackException,gene
 global hwint00,hwint01,hwint02,hwint03,hwint04,hwint05,hwint06,hwint07,hwint08,hwint09,hwint10,hwint11,hwint12,hwint13,hwint14,hwint15
 
 ;==================================================================================================================
+;进程状态
+TASK_RUNNING	equ	0
+;PROCESS-PCB进程控制块结构体成员偏移量
+STATE			equ	0
+COUNTER			equ	4
 EOI				equ	20H						;ocw2,中断结束控制字
 INT_M_CTL		equ	20H						;主8259的偶地址端口20H
 INT_M_CTLMASK	equ	21H						;主8259的奇地址端口21H
@@ -32,24 +39,32 @@ INT_S_CTLMASK	equ	0A1H					;从8259的偶地址端口A1H
 ;中断发生时的寄存器保存工作
 ;==================================================================================================================
 %macro save_reg 0
-	push ds						;┓   
-	push es						;┃
-	push fs						;┃
-	push gs						;┣ 保存ring3时寄存器的值
-	pushf						;┃
-	pushad						;┛
+	push ds			;保存ring3时寄存器的值
+	push es			;保存ring3时寄存器的值
+	push fs			;保存ring3时寄存器的值
+	push gs			;保存ring3时寄存器的值
+	push ecx		;保存ring3时寄存器的值
+	push edx		;保存ring3时寄存器的值
+	push ebx		;保存ring3时寄存器的值
+	push ebp		;保存ring3时寄存器的值
+	push esi		;保存ring3时寄存器的值
+	push edi		;保存ring3时寄存器的值
 %endmacro
 ;==================================================================================================================
 
 ;中断返回时恢复寄存器的值
 ;==================================================================================================================
 %macro load_reg 0  
-	popad						;┓  
-	popf						;┃ 
-	pop gs						;┣ 恢复ring3时寄存器的值
-	pop fs						;┃   
-	pop es						;┃ 
-	pop ds						;┛ 
+	pop edi			;恢复ring3时寄存器的值
+	pop esi			;恢复ring3时寄存器的值
+	pop ebp			;恢复ring3时寄存器的值
+	pop ebx			;恢复ring3时寄存器的值
+	pop edx			;恢复ring3时寄存器的值
+	pop ecx			;恢复ring3时寄存器的值
+	pop gs			;恢复ring3时寄存器的值
+	pop fs			;恢复ring3时寄存器的值
+	pop es			;恢复ring3时寄存器的值
+	pop ds			;恢复ring3时寄存器的值
 %endmacro
 ;==================================================================================================================
 
@@ -168,11 +183,8 @@ coprError:
 ;带参数宏		 主片
 %macro hwint_master 1
 	save_reg
+	push eax
 	use_ring0
-		
-	in al,INT_M_CTLMASK			; ┓ 
-	or al,(1<<%1)				; ┣ 不允许再发生时钟中断
-	out INT_M_CTLMASK,al		; ┛ 
 	mov al,	EOI					;中断结束控制字
 	out	INT_M_CTL, al			;告诉8259中断结束。这样就可以不停的发生中断
 		
@@ -181,11 +193,8 @@ coprError:
 	call [(IRQ_TABLE + 4 * %1)]	;调用中断处理子程序
 	add esp,4					;由调用者清理堆栈，清理掉调用函数前压入的参数irq
 		
+	pop eax
 	load_reg
-	
-	in al,INT_M_CTLMASK			; ┓ 
-	and al,~(1<<%1)				; ┣ 允许再发生时钟中断
-	out INT_M_CTLMASK,al		; ┛ 
 	iret
 %endmacro
 ;------------------------------------------------------------------------------------------------------------------
@@ -226,11 +235,9 @@ hwint07:
 ;带参数宏		从片
 %macro hwint_slave 1
 	save_reg
+	push eax
 	use_ring0
-		
-	in al,INT_S_CTLMASK			; ┓ 
-	or al,(1<<(%1-8))			; ┣ 不允许再发生时钟中断
-	out INT_S_CTLMASK,al		; ┛ 
+
 	mov al,	EOI					;中断结束控制字
 	out	INT_M_CTL, al			;告诉8259中断结束。这样就可以不停的发生中断
 	mov al,	EOI					;中断结束控制字
@@ -241,11 +248,8 @@ hwint07:
 	call [(IRQ_TABLE + 4 * %1)]	;调用中断处理子程序
 	add esp,4					;由调用者清理堆栈，清理掉调用函数前压入的参数irq
 		
+	pop eax
 	load_reg
-	
-	in al,INT_S_CTLMASK			; ┓ 
-	and al,~(1<<(%1-8))			; ┣ 允许再发生时钟中断
-	out INT_S_CTLMASK,al		; ┛ 
 	iret
 %endmacro
 ;------------------------------------------------------------------------------------------------------------------
@@ -286,13 +290,23 @@ hwint15:
 ;==================================================================================================================
 sysCall:
 	save_reg
-	sti							;开中断
 	push ebx					;系统调用参数可以有三个
 	push ecx
 	push edx
 	use_ring0
 	call [SYS_CALL_TABLE+eax*4]
 	add	esp, 4*3				;清理栈系统调用参数
+	push eax					;保存系统调用子处理程序返回值
+	mov eax, CURRENT			;获取当前进程
+	mov eax, [eax]				;获取当前进程
+	cmp dword [eax+STATE], TASK_RUNNING
+	je RET
+	call schedule
+	cmp dword [eax+COUNTER], 0
+	jne RET
+	call schedule
+	RET:
+	pop eax						;恢复系统调用子处理程序返回值
 	load_reg
 	iret
 ;==================================================================================================================

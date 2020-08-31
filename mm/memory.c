@@ -5,6 +5,8 @@
 #include	<type.h>
 #include	<mm.h>
 
+t_8	MEM_MAP[PAGES_SIZE] = {-1,};
+
 PUBLIC	void	initMemory(t_32 mem_size)
 {
 	if (mem_size > 0x3C00000)
@@ -22,11 +24,7 @@ PUBLIC	void	initMemory(t_32 mem_size)
 	int i;
 	for (i = 0; i < PAGES_SIZE; i++)			//初始化内存管理map
 	{
-		if (i <= (KERNEL_MEM >> 12))
-		{
-			MEM_MAP[i] = -1;
-		}
-		else if (i <= (buf_mem_end >> 12))
+		if (i <= (buf_mem_end >> 12))
 		{
 			MEM_MAP[i] = 100;
 		} 

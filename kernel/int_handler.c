@@ -4,8 +4,16 @@
  */
 #include	<type.h>
 #include	<int.h>
-#include	<lib.h>
 #include	<time.h>
+#include	<fs.h>
+#include	<mm.h>
+#include	<signal.h>
+#include	<protect.h>
+#include	<process.h>
+#include	<lib.h>
+
+//8259中断调用子程序表
+T_PF_IRQ_HANDLER	IRQ_TABLE[NR_IRQ];
 
 PUBLIC	void	syserrHandler(int err_no, int err_code, int eip, int cs, int eflags)
 {
@@ -65,7 +73,6 @@ PUBLIC	void	syserrHandler(int err_no, int err_code, int eip, int cs, int eflags)
 //时钟中断处理子程序
 PUBLIC	void	timerHandler(int irq)
 {
-	TICKS++;
 	int i, num = TICKS;
 	char ch;
 	char str[8], *p = str;
@@ -87,4 +94,11 @@ PUBLIC	void	timerHandler(int irq)
 	*((u_16*)(0xb800A)) = (0x0F00 | str[5]);
 	*((u_16*)(0xb800C)) = (0x0F00 | str[6]);
 	*((u_16*)(0xb800E)) = (0x0F00 | str[7]);
+
+	TICKS++;						//时钟中断发生次数加一
+	if ((--CURRENT->counter) > 0)	//当前进程的时间片减一,如果减到=0则重新调度
+	{
+		return 0;
+	}
+	schedule();						//进程调度
 }

@@ -51,6 +51,6 @@ PUBLIC void cinit()
 	initSchedule();
 
 	//设置ltr、lldt
-	ltr(SELECTOR_FIRST_TASK_TSS | SA_RPL3);
-	lldtr(SELECTOR_FIRST_TASK_LDT | SA_RPL3);
+	ltr(SELECTOR_FIRST_TASK_TSS);
+	lldtr(SELECTOR_FIRST_TASK_LDT);
 }

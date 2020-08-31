@@ -6,10 +6,13 @@
 
 PUBLIC	void	main()
 {
-	//todo
 	if(!fork())
 	{
-		
+		while (1);
 	}
+	//0号进程一直pause在这里，并且不停的的执行pause中schedule,
 	while (1);
+	//{
+	//	pause();
+	//}
 }

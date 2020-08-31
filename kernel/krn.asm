@@ -4,11 +4,14 @@
 
 ;==================================================================================================
 global	_start						;导出_start
+global	SWITCH_TO
 ;导入(声明)
 extern	cinit
 extern	main
 extern	KERNEL_STACK				;内核栈
 extern	INIT_TASKS					;初始任务的栈
+extern	TASKS
+extern	CURRENT
 extern	GDT_PTR						;gdtr寄存器的值
 extern	IDT_PTR						;idtr寄存器的值
 PAGE_SIZE		equ	4096			;页大小
@@ -43,6 +46,24 @@ MOVE_TO_USER:
 	push SELECTOR_KERNEL_CS|SA_TIL|SA_RPL3	;push cs
 	push MAIN								;push eip
 	iret									;任务门特权级改变
+SWITCH_TO:
+	mov eax, [esp+4]						;进程槽位号
+	shl eax, 2								;进程相对TASKS的偏移量
+	add eax, TASKS							;进程槽位的地址
+	mov eax, [eax]							;进程的地址
+	mov edx, CURRENT
+	cmp dword [edx], eax					;如果是当前正在执行的进程则返回
+	je RET
+	xchg [edx], eax							;设置CURRENT新值
+	mov eax, [esp+4]
+	shl eax, 4								;任务tss选择子
+	add eax, SELECTOR_FIRST_TASK_TSS
+	push eax								;seg
+	push 0									;offset
+	jmp far [esp]							;任务门
+	add esp, 8
+	RET:
+	ret
 MAIN:
 	mov ax, SELECTOR_KERNEL_DS|SA_TIL|SA_RPL3
 	mov ds, ax

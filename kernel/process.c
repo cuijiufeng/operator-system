@@ -3,15 +3,21 @@
  * 进程
  */
 #include	<type.h>
-#include	<time.h>
-#include	<lib.h>
-#include	<signal.h>
 #include	<fs.h>
 #include	<mm.h>
+#include	<signal.h>
 #include	<protect.h>
 #include	<process.h>
+#include	<lib.h>
+#include	<time.h>
 
 PRIVATE	int	last_pid;
+//初始化进程
+PROCESS_UNION INIT_TASKS[NR_INIT_TASKS];
+//进程指针数组
+PROCESS* TASKS[NR_TASKS] = { &(INIT_TASKS[0].task), };
+//当前正在执行的进程
+PROCESS* CURRENT = &(INIT_TASKS[0].task);
 
 PUBLIC	void initSchedule()
 {
@@ -66,9 +72,8 @@ PUBLIC	t_32	findEmptyProcess()
 }
 
 //拷贝进程，返回进程的pid。nr是进程槽位号，none是系统调用中断处理子程序的返回地址
-PUBLIC	t_32	copyProcess(t_32 nr, u_32 none, u_32 edx, u_32 ecx, u_32 ebx, //edx,ecx,ebx系统调用的参数
-	u_32 EDI, u_32 ESI, u_32 EBP, u_32 ESP, u_32 EBX, u_32 EDX, u_32 ECX, u_32 EAX, u_32 eflag,
-	u_32 gs, u_32 fs, u_32 es, u_32 ds,					//保存ring3时寄存器的值
+PUBLIC	t_32	copyProcess(t_32 nr, u_32 none, u_32 edx, u_32 ecx, u_32 ebx,						//edx,ecx,ebx系统调用的参数
+	u_32 EDI, u_32 ESI, u_32 EBP, u_32 EBX, u_32 EDX, u_32 ECX, u_32 gs, u_32 fs, u_32 es, u_32 ds,	//保存ring3时寄存器的值
 	u_32 eip, u_32 cs, u_32 eflags, u_32 esp, u_32 ss)	//ring3时的值
 {
 	PROCESS* p;
@@ -98,7 +103,7 @@ PUBLIC	t_32	copyProcess(t_32 nr, u_32 none, u_32 edx, u_32 ecx, u_32 ebx, //edx,
 	p->tss.ecx = ECX;
 	p->tss.edx = EDX;
 	p->tss.ebx = EBX;
-	p->tss.esp = ESP;
+	p->tss.esp = esp;
 	p->tss.ebp = EBP;
 	p->tss.esi = ESI;
 	p->tss.edi = EDI;
@@ -108,7 +113,7 @@ PUBLIC	t_32	copyProcess(t_32 nr, u_32 none, u_32 edx, u_32 ecx, u_32 ebx, //edx,
 	p->tss.ds = ds & 0xffff;
 	p->tss.fs = fs & 0xffff;
 	p->tss.gs = gs & 0xffff;
-	p->tss.ldt = (nr<<3) + SELECTOR_FIRST_TASK_LDT;
+	p->tss.ldt = (nr<<4) + SELECTOR_FIRST_TASK_LDT;
 	p->tss.trap = 0;
 	p->tss.iobase = sizeof(TSS);
 	if(copyMem(nr, p))
@@ -119,8 +124,9 @@ PUBLIC	t_32	copyProcess(t_32 nr, u_32 none, u_32 edx, u_32 ecx, u_32 ebx, //edx,
 		return -1;
 	}
 	//设置tss与ldt
-	setGdtDesc(&GDT[(SELECTOR_FIRST_TASK_TSS >> 3) + nr], &(TASKS[nr]->tss), sizeof(TSS), DA_386TSS);
-	setGdtDesc(&GDT[(SELECTOR_FIRST_TASK_LDT >> 3) + nr], &(TASKS[nr]->ldt), sizeof(DESCRIPTOR)*3, DA_LDT);
+	setGdtDesc(&GDT[(SELECTOR_FIRST_TASK_TSS >> 3) + 2*nr], &(TASKS[nr]->tss), sizeof(TSS), DA_386TSS);
+	setGdtDesc(&GDT[(SELECTOR_FIRST_TASK_LDT >> 3) + 2*nr], &(TASKS[nr]->ldt), sizeof(DESCRIPTOR)*3, DA_LDT);
+	p->state = TASK_RUNNING;
 	return last_pid;			//如果拷贝进程成功，则返回子进程的的pid
 }
 
@@ -148,4 +154,44 @@ PRIVATE	t_32	copyMem(t_32 nr, PROCESS* p)
 		return -1;
 	}
 	return 0;
+}
+
+//进程调度函数
+PUBLIC	void	schedule()
+{
+	int next, c, i;
+	while (1)
+	{
+		c = 0;
+		next = 0;
+		//遍历所有的任务
+		for (i = 0; i < NR_TASKS; i++)
+		{
+			//如果进程来存在则下个进程
+			if (!TASKS[i])
+			{
+				continue;
+			}
+			//如果进程是可运行并且时间片最大
+			if (TASKS[i]->state == TASK_RUNNING && TASKS[i]->counter > c)
+			{
+				c = TASKS[i]->counter;	//保存当前进程的进间片
+				next = i;				//保存当前进程的进程槽位号
+			}
+		}
+		//如果找到可调度的进程则去调度
+		if (c)
+		{
+			break;
+		}
+		//如果没有可调度的进程，重新设置进程的时间片
+		for (i = 0; i < NR_TASKS; i++)
+		{
+			if (TASKS[i])
+			{
+				TASKS[i]->counter = TASKS[i]->priority;
+			}
+		}
+	}
+	SWITCH_TO(next);
 }

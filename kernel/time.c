@@ -1,46 +1,51 @@
 /**
- * 2020Äê08ÔÂ21ÈÕ 19/55/53
- * Ê±¼ä
+ * 2020å¹´08æœˆ21æ—¥ 19/55/53
+ * æ—¶é—´
  */
 #include	<type.h>
-#include	<mm.h>
-#include	<int.h>
 #include	<time.h>
-#include	<protect.h>
+#include	<int.h>
 #include	<lib.h>
+
+u_32	TICKS = 0;			//æ—¶é’Ÿä¸­æ–­å‘ç”Ÿçš„æ¬¡æ•°
+u_32	STARTUP_TIME;		//ä»Ž1970å¹´1æœˆ1æ—¥08:00:00åˆ°çŽ°åœ¨çš„ç§’æ•°
 
 PUBLIC	void	initTime()
 {
-	TICKS = 0;
 	TIME time;
 	outByte(CMOS_CTL, CMOS_DATA_SEC);
-	time.tm_sec = BCD_TO_BIN(inByte(CMOS_VALUE));	//¶ÁÈ¡ÃëÊý
+	time.tm_sec = BCD_TO_BIN(inByte(CMOS_VALUE));	//è¯»å–ç§’æ•°
 
 	outByte(CMOS_CTL, CMOS_DATA_MIN);
-	time.tm_min = BCD_TO_BIN(inByte(CMOS_VALUE));	//¶ÁÈ¡·ÖÊý
+	time.tm_min = BCD_TO_BIN(inByte(CMOS_VALUE));	//è¯»å–åˆ†æ•°
 
 	outByte(CMOS_CTL, CMOS_DATA_HOUR);
-	time.tm_hour = BCD_TO_BIN(inByte(CMOS_VALUE));	//¶ÁÈ¡Ð¡Ê±Êý
+	time.tm_hour = BCD_TO_BIN(inByte(CMOS_VALUE));	//è¯»å–å°æ—¶æ•°
 
 	outByte(CMOS_CTL, CMOS_DATA_DAY);
-	time.tm_mday = BCD_TO_BIN(inByte(CMOS_VALUE));	//¶ÁÈ¡ÌìÊý
+	time.tm_mday = BCD_TO_BIN(inByte(CMOS_VALUE));	//è¯»å–å¤©æ•°
 
 	outByte(CMOS_CTL, CMOS_DATA_MON);
-	time.tm_mon = BCD_TO_BIN(inByte(CMOS_VALUE));	//¶ÁÈ¡ÔÂÊý
+	time.tm_mon = BCD_TO_BIN(inByte(CMOS_VALUE));	//è¯»å–æœˆæ•°
 
 	outByte(CMOS_CTL, CMOS_DATA_YEAR);
-	time.tm_year = BCD_TO_BIN(inByte(CMOS_VALUE));	//¶ÁÈ¡ÄêÊý
+	time.tm_year = BCD_TO_BIN(inByte(CMOS_VALUE));	//è¯»å–å¹´æ•°
 
-	time.tm_mon--;									//tm_monÊÇ[0-11],ËùÒÔ¼õÒ»
-	STARTUP_TIME = mkTime(&time);					//¼ÆËã×Ô1970Äê1ÔÂ1ÈÕ08:00:00µ½ÏÖÔÚµÄÃëÊý
+	time.tm_mon--;									//tm_monæ˜¯[0-11],æ‰€ä»¥å‡ä¸€
+	STARTUP_TIME = mkTime(&time);					//è®¡ç®—è‡ª1970å¹´1æœˆ1æ—¥08:00:00åˆ°çŽ°åœ¨çš„ç§’æ•°
 
-	setIrqHandler(CLOCK_IRQ, timerHandler);			//ÉèÖÃÊ±ÖÓÖÐ¶Ï´¦Àí×Ó³ÌÐò
-	enableIrq(CLOCK_IRQ);							//´ò¿ªÊ±ÖÓÖÐ¶Ï
+	//åˆå§‹åŒ– 8253 
+	outByte(TIMER_MODE, RATE_GENERATOR);			//å†™8253æŽ§åˆ¶å­—
+	outByte(TIMER0, (t_8)(TIMER_FREQ / HZ));		//å†™åˆå€¼ï¼Œä½Ž8ä½
+	outByte(TIMER0, (t_8)((TIMER_FREQ / HZ) >> 8));	//å†™åˆå€¼ï¼Œé«˜8ä½
+
+	enableIrq(CLOCK_IRQ);							//æ‰“å¼€æ—¶é’Ÿä¸­æ–­
+	putIrqHandler(CLOCK_IRQ, timerHandler);		//è®¾ç½®æ—¶é’Ÿä¸­æ–­å¤„ç†å­ç¨‹åº
 }
 
 PRIVATE	u_32	mkTime(TIME* time)
 {
-	//Ã¿¸öÔÂËù¶ÔÓ¦µÄÃëÊý,¶þÔÂÒÔÈòÄêÀ´¼ÆËãµÄ
+	//æ¯ä¸ªæœˆæ‰€å¯¹åº”çš„ç§’æ•°,äºŒæœˆä»¥é—°å¹´æ¥è®¡ç®—çš„
 	int month[12] = {
 		0,
 		DAY*(31),
@@ -56,7 +61,7 @@ PRIVATE	u_32	mkTime(TIME* time)
 		DAY*(31 + 29 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31 + 30)};
 	u_32	rs;
 	u_32	year;
-	//tm_yearÀï´æµÄÊÇµ±Ç°ÄêÊýºóÁ½Î»[0-99]
+	//tm_yearé‡Œå­˜çš„æ˜¯å½“å‰å¹´æ•°åŽä¸¤ä½[0-99]
 	if (time->tm_year > 70)
 	{
 		year = time->tm_year - 70;
@@ -65,16 +70,16 @@ PRIVATE	u_32	mkTime(TIME* time)
 	{
 		year = time->tm_year + 100 - 70;
 	}
-	//(year+1)/4±»³Æ×÷Ò»¸öÄ§»ÃÖµ£¬ÓÃÀ´¼ÆËã1970ÄêÒÔÀ´µÄÈòÄêÊý(1970Äêµ½1971Äêyear=1£¬1972ÄêÊ±year=2£¬1973ÄêÊ±year=3£¬´ËÊ±ÕýºÃ¹ýÁË1972ÄêÒ»¸öÈòÄê£¬
-	//ËùÒÔ(year+1)/4)Ïàµ±´ÓµÚÒ»¸öÈòÄê¿ªÊ¼ËãµÄ£¬ÈòÄêÊÇÃ¿4ÄêÒ»¸öÈòÄê
-	rs = YEAR*year + DAY * ((year + 1) / 4);	//ÈòÄê»á±ÈÆÕÍ¨Äê¶àÒ»Ìì
-	rs += month[time->tm_mon];					//¼ÓÉÏÔÂÊýµÄÃëÊý
-	//Èç¹û((year + 2) % 4)==0±íÊ¾µ±Ç°ÄêÊÇÈòÄê
+	//(year+1)/4è¢«ç§°ä½œä¸€ä¸ªé­”å¹»å€¼ï¼Œç”¨æ¥è®¡ç®—1970å¹´ä»¥æ¥çš„é—°å¹´æ•°(1970å¹´åˆ°1971å¹´year=1ï¼Œ1972å¹´æ—¶year=2ï¼Œ1973å¹´æ—¶year=3ï¼Œæ­¤æ—¶æ­£å¥½è¿‡äº†1972å¹´ä¸€ä¸ªé—°å¹´ï¼Œ
+	//æ‰€ä»¥(year+1)/4)ç›¸å½“ä»Žç¬¬ä¸€ä¸ªé—°å¹´å¼€å§‹ç®—çš„ï¼Œé—°å¹´æ˜¯æ¯4å¹´ä¸€ä¸ªé—°å¹´
+	rs = YEAR*year + DAY * ((year + 1) / 4);	//é—°å¹´ä¼šæ¯”æ™®é€šå¹´å¤šä¸€å¤©
+	rs += month[time->tm_mon];					//åŠ ä¸Šæœˆæ•°çš„ç§’æ•°
+	//å¦‚æžœ((year + 2) % 4)==0è¡¨ç¤ºå½“å‰å¹´æ˜¯é—°å¹´
 	if (time->tm_mon > 1 && ((year + 2) % 4))
 	{
-		rs -= DAY;								//Èç¹ûµ±Ç°Äê²»ÊÇÈòÄê£¬Ó¦¸Ã¼õµô2ÔÂÖÐµÄ¶à³öÀ´µÄÒ»Ìì
+		rs -= DAY;								//å¦‚æžœå½“å‰å¹´ä¸æ˜¯é—°å¹´ï¼Œåº”è¯¥å‡æŽ‰2æœˆä¸­çš„å¤šå‡ºæ¥çš„ä¸€å¤©
 	}
-	rs += DAY * (time->tm_mday - 1);				//¼ÓÉÏÈÕµÄÃëÊý
+	rs += DAY * (time->tm_mday - 1);				//åŠ ä¸Šæ—¥çš„ç§’æ•°
 	rs += HOUR * time->tm_hour;
 	rs += MINUTE * time->tm_min;
 	rs += time->tm_sec;

@@ -56,20 +56,20 @@ typedef union TASK_UNION {
 } PROCESS_UNION;
 
 //初始化进程
-PROCESS_UNION INIT_TASKS[NR_INIT_TASKS];
+EXTERN	PROCESS_UNION INIT_TASKS[NR_INIT_TASKS];
 //进程指针数组
-PROCESS* TASKS[NR_TASKS] = {&(INIT_TASKS[0].task),};
+EXTERN	PROCESS* TASKS[NR_TASKS];
 //当前正在执行的进程
-PROCESS* CURRENT = &(INIT_TASKS[0].task);
+EXTERN	PROCESS* CURRENT;
 
 //---------------------------------------------------------------------------------------
 //相关函数声明
-PUBLIC	void initSchedule();
+PUBLIC	void	initSchedule();
+PUBLIC	void	schedule();
 PUBLIC	t_32	findEmptyProcess();
 PRIVATE	t_32	copyMem(t_32 nr, PROCESS* p);
-PUBLIC	t_32	copyProcess(t_32 nr, u_32 none, u_32 edx, u_32 ecx, u_32 ebx, //edx,ecx,ebx系统调用的参数
-			u_32 EDI, u_32 ESI, u_32 EBP, u_32 ESP, u_32 EBX, u_32 EDX, u_32 ECX, u_32 EAX, u_32 eflag,
-			u_32 gs, u_32 fs, u_32 es, u_32 ds,					//保存ring3时寄存器的值
+PUBLIC	t_32	copyProcess(t_32 nr, u_32 none, u_32 edx, u_32 ecx, u_32 ebx,								//edx,ecx,ebx系统调用的参数
+			u_32 EDI, u_32 ESI, u_32 EBP, u_32 EBX, u_32 EDX, u_32 ECX, u_32 gs, u_32 fs, u_32 es, u_32 ds,	//保存ring3时寄存器的值
 			u_32 eip, u_32 cs, u_32 eflags, u_32 esp, u_32 ss);	//ring3时的值
 //---------------------------------------------------------------------------------------
 
