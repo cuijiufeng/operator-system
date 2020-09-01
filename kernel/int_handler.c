@@ -4,6 +4,7 @@
  */
 #include	<type.h>
 #include	<int.h>
+#include	<syscall.h>
 #include	<time.h>
 #include	<fs.h>
 #include	<mm.h>
@@ -12,8 +13,12 @@
 #include	<process.h>
 #include	<lib.h>
 
+//---------------------------------------------------------------------------------------
 //8259中断调用子程序表
-T_PF_IRQ_HANDLER	IRQ_TABLE[NR_IRQ];
+T_PF_IRQ_HANDLER	IRQ_TABLE[NR_IRQ];	
+//函数指针数组，系统调用中断处理子程序
+T_PF_SYS_CALL	SYS_CALL_TABLE[] = { sysFork,sysPause };
+//---------------------------------------------------------------------------------------
 
 PUBLIC	void	syserrHandler(int err_no, int err_code, int eip, int cs, int eflags)
 {

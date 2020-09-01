@@ -33,7 +33,7 @@ PUBLIC	void initSchedule()
 	setGdtDesc(&INIT_TASKS[0].task.ldt[1], 0, 0x9F, DA_LIMIT_4K | DA_32 | DA_CR | PRIVILEGE_USER);
 	setGdtDesc(&INIT_TASKS[0].task.ldt[2], 0, 0x9F, DA_LIMIT_4K | DA_32 | DA_DRW | PRIVILEGE_USER);
 	//tss
-	setTss(&INIT_TASKS[0].task.tss, 0, KERNEL_STACK + PAGE_SIZE, SELECTOR_KERNEL_DS, 0, 0, 0, 0, PAGE_DIR, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	setTss(&INIT_TASKS[0].task.tss, 0, (u_32)INIT_TASKS + PAGE_SIZE, SELECTOR_KERNEL_DS, 0, 0, 0, 0, PAGE_DIR, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		SELECTOR_KERNEL_DS | SA_TIL | SA_RPL3, SELECTOR_KERNEL_DS | SA_TIL | SA_RPL3, SELECTOR_KERNEL_DS | SA_TIL | SA_RPL3, 
 		SELECTOR_KERNEL_DS | SA_TIL | SA_RPL3, SELECTOR_KERNEL_DS | SA_TIL | SA_RPL3, SELECTOR_KERNEL_DS | SA_TIL | SA_RPL3, 
 		SELECTOR_FIRST_TASK_LDT, 0, sizeof(TSS));
@@ -95,7 +95,7 @@ PUBLIC	t_32	copyProcess(t_32 nr, u_32 none, u_32 edx, u_32 ecx, u_32 ebx,						/
 	p->leader = 0;		/* process leadership doesn't inherit */
 	p->start_time = TICKS;
 	p->tss.backlink = 0;
-	p->tss.esp0 = KERNEL_STACK + PAGE_SIZE;
+	p->tss.esp0 = (u_32)p + PAGE_SIZE;
 	p->tss.ss0 = SELECTOR_KERNEL_DS;
 	p->tss.eip = eip;
 	p->tss.flags = eflags;

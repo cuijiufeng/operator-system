@@ -98,7 +98,7 @@ typedef struct s_tss {
 } TSS;
 
 //---------------------------------------------------------------------------------------
-EXTERN	u_8			KERNEL_STACK[PAGE_SIZE];	//内核栈
+EXTERN	u_8			USER_STACK[PAGE_SIZE];		//进程0ring0栈
 EXTERN	u_8			GDT_PTR[6];					//0~15:limit	16~47:base	用于保存寄存器gdtr中的值，前两个字节保存gdt的界限，后四个字节保存gdt的地址
 EXTERN	DESCRIPTOR	GDT[GDT_SIZE];				//定义描述符表
 EXTERN	u_8			IDT_PTR[6];					//中断描述符表基址与界限

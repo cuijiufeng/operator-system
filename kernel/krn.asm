@@ -7,9 +7,8 @@ global	_start						;导出_start
 global	SWITCH_TO
 ;导入(声明)
 extern	cinit
-extern	main
-extern	KERNEL_STACK				;内核栈
-extern	INIT_TASKS					;初始任务的栈
+extern	cmain
+extern	USER_STACK					;进程0ring0栈
 extern	TASKS
 extern	CURRENT
 extern	GDT_PTR						;gdtr寄存器的值
@@ -33,19 +32,23 @@ SELECTOR_FIRST_TASK_LDT	equ	20H
 ;==================================================================================================
 [section .text]
 _start:
-	mov 	esp, KERNEL_STACK+PAGE_SIZE		;设置栈顶
+	mov 	esp, USER_STACK+PAGE_SIZE		;设置栈顶
 	sgdt 	[ds:GDT_PTR]					;sgdt指令。保存gdtr寄存器中的值到gdt_ptr内存地址中去
 	call	cinit
 MOVE_TO_USER:
-	mov eax, 3002H							;IOPL=3
-	push eax
-	popfd									;修改eflags的值
+	mov eax, esp
 	push SELECTOR_KERNEL_DS|SA_TIL|SA_RPL3	;push ss
-	push INIT_TASKS	+ PAGE_SIZE				;push esp
-	pushf									;push eflags
+	push eax								;push esp
+	mov eax, 3202H							;IF=1,IOPL=3
+	push eax								;push eflags
 	push SELECTOR_KERNEL_CS|SA_TIL|SA_RPL3	;push cs
-	push MAIN								;push eip
-	iret									;任务门特权级改变
+	push cmain								;push eip
+	mov ax, SELECTOR_KERNEL_DS|SA_TIL|SA_RPL3
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+	iret
 SWITCH_TO:
 	mov eax, [esp+4]						;进程槽位号
 	shl eax, 2								;进程相对TASKS的偏移量
@@ -64,12 +67,4 @@ SWITCH_TO:
 	add esp, 8
 	RET:
 	ret
-MAIN:
-	mov ax, SELECTOR_KERNEL_DS|SA_TIL|SA_RPL3
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-	sti										;开中断
-	call	main
 ;==================================================================================================
