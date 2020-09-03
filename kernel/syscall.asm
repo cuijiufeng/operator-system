@@ -14,6 +14,7 @@ TASK_INTERRUPTIBLE	equ	1
 extern	CURRENT
 extern	findEmptyProcess
 extern	copyProcess
+extern	schedule
 global	sysFork,sysPause
 ;系统调用中断处理子函数
 ;==================================================================================================
@@ -27,10 +28,10 @@ sysFork:
 _1:
 	ret
 sysPause:
-	mov eax, CURRENT
+	mov eax, [CURRENT]
 	add eax, STATE
 	mov dword [eax], TASK_INTERRUPTIBLE	;CURRENT->state=TASK_INTERRUPTIBLE
-	;call schedule
+	call schedule
 	mov eax, 0					;返回值
 	ret
 ;==================================================================================================

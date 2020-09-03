@@ -4,6 +4,7 @@
  */
 #include	<type.h>
 #include	<mm.h>
+#include	<lib.h>
 
 t_8	MEM_MAP[PAGES_SIZE] = {-1,};
 
@@ -184,4 +185,47 @@ PUBLIC	t_32	freePageTables(u_32 addr, u_32 size)
 	loadCR3(PAGE_DIR);
 	//成功则返回0
 	return 0;
+}
+
+//取消页写保护,pg_tb_item是二级页项的地址
+PUBLIC	void	unWriteProtectPage(u_32* pg_tb_item)
+{
+	u_32 old_page, new_page;
+	old_page = *pg_tb_item & 0xfffff000;
+	//如果此页不是内核内存并且被引用数为1
+	if(old_page >= KERNEL_MEM && MEM_MAP[old_page>>12] == 1)
+	{
+		//修改页为可读可写
+		*pg_tb_item = *pg_tb_item | PG_RWW;
+		//重新设置cr3
+		loadCR3(PAGE_DIR);
+		return;
+	}
+	//新分配一页内存用来拷贝页
+	if(!(new_page = getFreePage()))
+	{
+		//todo 如果没有可以分配的内存，则出错
+		while(1);
+	}
+	//如果页不是内核内存则页引用减一
+	if(old_page >= KERNEL_MEM)
+	{
+		MEM_MAP[old_page>>12]--;
+	}
+	//为二级页项设置新的页地址
+	*pg_tb_item = new_page | PG_USU | PG_RWW | PG_P;
+	//重新设置cr3
+	loadCR3(PAGE_DIR);
+	//拷贝页中的数据
+	memcpy(new_page, old_page, 4096);
+}
+
+//page fault由于页写保护发生异常的处理函数
+PUBLIC	void	writeProtectPage(u_32 err_code, u_32 addr)
+{
+	//((addr>>22)<<4)为addr在一级页中的项地址，之后取一级页项对应的值->二级页的基地址,0xfffff000是因为页都是4KB对齐的
+	u_32 pg_tb_dir = *((u_32*)((addr>>22)<<2)) & 0xfffff000;
+	//(((addr>>12) & 0x3ff)<<2)为二级页项相对于二级页基址的偏移+二级页基址=二级页项的地址
+	u_32 pg_tb_item = pg_tb_dir + (((addr>>12) & 0x3ff)<<2);
+	unWriteProtectPage((u_32*)pg_tb_item);
 }

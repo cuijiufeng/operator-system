@@ -29,6 +29,8 @@ PUBLIC	u_32	getFreePage();
 PUBLIC	void	freePage(u_32 addr);
 PUBLIC	t_32	copyPageTables(u_32 dest_addr, u_32 src_addr, u_32 size);
 PUBLIC	t_32	freePageTables(u_32 addr, u_32 size);
+PUBLIC	void	writeProtectPage(u_32 err_code, u_32 addr);
+PUBLIC	void	unWriteProtectPage(u_32* pg_tb_item);
 //---------------------------------------------------------------------------------------
 
 #endif // !_OS_MM_H_

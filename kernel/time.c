@@ -40,7 +40,7 @@ PUBLIC	void	initTime()
 	outByte(TIMER0, (t_8)((TIMER_FREQ / HZ) >> 8));	//写初值，高8位
 
 	enableIrq(CLOCK_IRQ);							//打开时钟中断
-	putIrqHandler(CLOCK_IRQ, timerHandler);		//设置时钟中断处理子程序
+	putIrqHandler(CLOCK_IRQ, timerHandler);			//设置时钟中断处理子程序
 }
 
 PRIVATE	u_32	mkTime(TIME* time)

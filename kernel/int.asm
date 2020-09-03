@@ -7,12 +7,17 @@ extern IRQ_TABLE
 extern SYS_CALL_TABLE
 extern schedule
 extern syserrHandler
+extern writeProtectPage
 global sysCall
 global divideError,singleStepException,nmi,breakpointException,overflow,boundsCheck,invalOpcode,coprNotAvailable
 global doubleFault,coprSegOverrun,invalTss,segmentNotPresent,stackException,generalProtection,pageFault,coprError
 global hwint00,hwint01,hwint02,hwint03,hwint04,hwint05,hwint06,hwint07,hwint08,hwint09,hwint10,hwint11,hwint12,hwint13,hwint14,hwint15
 
 ;==================================================================================================================
+;page fault出错码位涵义
+P		equ	1	;0表示页不存在，1表示页级保护
+WR		equ	2	;0表示读操作，1表示写操作
+US		equ	4	;0表示在超级用户模式，1表示在用户模式
 ;进程状态
 TASK_RUNNING	equ	0
 ;PROCESS-PCB进程控制块结构体成员偏移量
@@ -164,11 +169,29 @@ generalProtection:
 	add esp,4
 	jmp $
 pageFault:
+	push ebp
+	mov ebp, esp
+	save_reg
+	push eax
 	use_ring0
-	push 0EH
-	call syserrHandler
-	add esp,4
-	jmp $
+	mov eax, [ebp+4]		;取出错码，出错码只用了低三位，分别表示发生异常的原因
+	mov edx, cr2			;取异常发生时的线性地址(当发生异常时的出错线性地址会被放到cr2)
+	push edx
+	push eax
+	and eax, P				;判断是否是因为页不存在引发异常
+	jz NO_P					;由于页不存在引发的异常
+	call writeProtectPage	;页写保护处理函数
+	jmp P_RET
+	NO_P:
+	;call missingPage		;调用缺页处理函数
+	P_RET:
+	add esp, 8
+	pop eax
+	load_reg
+	mov esp, ebp
+	pop ebp
+	add esp, 4				;把出错码弹出栈
+	iret
 coprError:
 	use_ring0
 	push 0FFFFFFFFH
@@ -300,12 +323,12 @@ sysCall:
 	mov eax, CURRENT			;获取当前进程
 	mov eax, [eax]				;获取当前进程
 	cmp dword [eax+STATE], TASK_RUNNING
-	je RET
+	je S_RET
 	call schedule
 	cmp dword [eax+COUNTER], 0
-	jne RET
+	jne S_RET
 	call schedule
-	RET:
+	S_RET:
 	pop eax						;恢复系统调用子处理程序返回值
 	load_reg
 	iret
