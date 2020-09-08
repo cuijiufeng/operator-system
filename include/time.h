@@ -45,6 +45,7 @@ EXTERN	u_32	STARTUP_TIME;	//从1970年1月1日08:00:00到现在的秒数
 //相关函数声明
 PUBLIC	void	initTime(); 
 PRIVATE	u_32	mkTime(TIME* time);
+PUBLIC	void	timerHandler(int irq);
 //---------------------------------------------------------------------------------------
 
 #endif // !_OS_TIME_H_

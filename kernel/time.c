@@ -5,6 +5,11 @@
 #include	<type.h>
 #include	<time.h>
 #include	<int.h>
+#include	<fs.h>
+#include	<mm.h>
+#include	<signal.h>
+#include	<protect.h>
+#include	<process.h>
 #include	<lib.h>
 
 u_32	TICKS = 0;			//时钟中断发生的次数
@@ -84,4 +89,37 @@ PRIVATE	u_32	mkTime(TIME* time)
 	rs += MINUTE * time->tm_min;
 	rs += time->tm_sec;
 	return rs;
+}
+
+//时钟中断处理子程序
+PUBLIC	void	timerHandler(int irq)
+{
+	int i, num = TICKS;
+	char ch;
+	char str[8], *p = str;
+	for (i = 28; i >= 0; i -= 4)
+	{
+		ch = (num >> i) & 0xF;
+		ch += '0';
+		if (ch > '9')
+		{
+			ch += 7;
+		}
+		*p++ = ch;
+	}
+	*((u_16*)(0xb8000)) = (0x0F00 | str[0]);
+	*((u_16*)(0xb8002)) = (0x0F00 | str[1]);
+	*((u_16*)(0xb8004)) = (0x0F00 | str[2]);
+	*((u_16*)(0xb8006)) = (0x0F00 | str[3]);
+	*((u_16*)(0xb8008)) = (0x0F00 | str[4]);
+	*((u_16*)(0xb800A)) = (0x0F00 | str[5]);
+	*((u_16*)(0xb800C)) = (0x0F00 | str[6]);
+	*((u_16*)(0xb800E)) = (0x0F00 | str[7]);
+
+	TICKS++;						//时钟中断发生次数加一
+	if ((--CURRENT->counter) > 0)	//当前进程的时间片减一,如果减到=0则重新调度
+	{
+		return 0;
+	}
+	schedule();						//进程调度
 }

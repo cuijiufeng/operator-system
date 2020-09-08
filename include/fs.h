@@ -6,8 +6,7 @@
 #define	_OS_FS_H_
 
 #define		NR_OPEN 20
-t_32	ROOT_DEV;
-typedef		struct task_struct PROCESS;
+typedef	struct task_struct PROCESS;
 
 typedef	struct m_inode {
 	u_16	i_mode;				//文件类型和属性

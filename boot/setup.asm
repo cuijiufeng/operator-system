@@ -9,7 +9,6 @@
 ;4.向内核交出控制权
 ;==================================================================================================
 
-org	0100H
 ;导入关于载入文件地址的一些常量值
 %include "const.inc"			
 ;导入描述符结构及其常量值
@@ -62,7 +61,7 @@ LABEL_START:
 		
 	NOT_FIND_THE_SETUP_FILE:
 	mov si,StringNotFindKernel
-	mov di,1E0H
+	mov di,280H
 	call displayString
 	jmp $
 		
@@ -88,13 +87,20 @@ LABEL_START:
 		cmp ax,0FF7H					;如果大于等于0FF7H就停下来
 		jnb LOAD_KERNEL_OVER
 		add bx,512						;缓冲区
+		cmp bx, OFFSET_OF_KERNEL		;如果一个段用完了
+		jne CONTINUE
+		mov es, bx
+		add bx, 0x1000
+		mov es, bx						;段值加0x1000
+		mov bx, OFFSET_OF_KERNEL		;偏移继续使用OFFSET_OF_KERNEL
+		CONTINUE:
 	jmp LOOP_LOADING_KERNEL_FILE
 		
 	;Kernel文件完全载入内存之后转去执行Kernel文件
 	LOAD_KERNEL_OVER:
 	call killMotor
 	mov si,StringLoadedKernel
-	mov di,1E0H
+	mov di,280H
 	call displayString
 
 	mov bx, DATA_BASE
@@ -105,14 +111,14 @@ LABEL_START:
 	add eax, 100000H						;加上1MB以下的内存，就是整个内存的大小
 	mov [es:MEMORY_SIZE_OFFSET], eax		;保存内存大小
 	mov si,MemerySizeStr
-	mov di,280H
+	mov di,320H
 	call displayString						;打印'Mem Size:'字符
 	call displayEAX							;打印内存的大小
 	
 	mov eax, ROOT_DEV
 	mov [es:HD_TYPE_OFFSET], eax
 	mov si,RootDevTypeStr
-	mov di,320H
+	mov di,3c0H
 	call displayString						;打印'root dev type:'字符
 	call displayEAX							;打印值
 	
@@ -306,6 +312,6 @@ memCpy:
 [section .stack]
 ALIGN	32
 	times	256	db	0
-TOP_OF_STACK_SETUP:										;实模式下的栈段
+TOP_OF_STACK_SETUP:									;实模式下的栈段
 	times	256	db	0
-	TOP_OF_STACK	equ	BASE_OF_SETUP_PHY_ADDR + $		;保护模式下的栈段
+TOP_OF_STACK	equ	BASE_OF_SETUP_PHY_ADDR + $		;保护模式下的栈段

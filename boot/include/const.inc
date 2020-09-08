@@ -18,10 +18,10 @@ BUFFER_FAT_ADDRESS				equ		9B00H				;把FAT扇区加载到此基地址
 BUFFER_FAT_OFFSET				equ		0200H				;把FAT扇区加载到此偏移地址
 			
 BASE_OF_SETUP					equ		9000H				;SETUP内容加载到此地址,基地址
-OFFSET_OF_SETUP					equ		0100H				;SETUP内容加载到此地址,偏移地址
+OFFSET_OF_SETUP					equ		0000H				;SETUP内容加载到此地址,偏移地址
 BASE_OF_SETUP_PHY_ADDR			equ		BASE_OF_SETUP*10H	;SETUP被加载到上地址，则	标号的物理地址=SETUP基地址*10H+标号偏移地址
 	
-BASE_OF_KERNEL					equ		8000H				;Kernel内容加载到此地址,基地址
+BASE_OF_KERNEL					equ		7000H				;Kernel内容加载到此地址,基地址
 OFFSET_OF_KERNEL				equ		0H					;Kernel内容加载到此地址,偏移地址
 BASE_OF_KERNEL_FILE_PHY_ADDR	equ		BASE_OF_KERNEL*10H
 

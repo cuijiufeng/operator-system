@@ -6,6 +6,7 @@
 #include	<mm.h>
 #include	<protect.h>
 #include	<int.h>
+#include	<blk_drv/blk.h>
 #include	<syscall.h>
 
 u_8			USER_STACK[PAGE_SIZE];		//进程0ring0栈

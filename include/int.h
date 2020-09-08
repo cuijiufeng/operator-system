@@ -91,7 +91,6 @@ EXTERN	T_PF_IRQ_HANDLER	IRQ_TABLE[NR_IRQ];
 
 //---------------------------------------------------------------------------------------
 //中断处理子程序
-PUBLIC	void	timerHandler(int irq);
 PUBLIC	void	syserrHandler(int err_no, int err_code, int eip, int cs, int eflags);
 //---------------------------------------------------------------------------------------
 

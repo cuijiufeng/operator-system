@@ -5,7 +5,8 @@
 #ifndef	_OS_BLK_H_
 #define	_OS_BLK_H_
 
-typedef struct hd_info
+//BIOS读取到的硬盘参数信息结构
+typedef struct drive_info
 {
 	t_16	cylinders;		//0x00字柱面数
 	t_8	heads;				//0x02字节磁头数
@@ -20,8 +21,30 @@ typedef struct hd_info
 	t_8	stop_cylind;		//0x0C字磁头着陆(停止)柱面号
 	t_8	sectors;			//0x0E字节每磁道扇区数
 	t_8	blank;				//0x0F字节保留。
-} HD_INFO_TABLE;
+} DRIVE_INFO_TABLE;
 
-HD_INFO_TABLE		HD_INFO;
+//磁盘参数及类型信息结构
+typedef struct hard_disk
+{
+	u_32	head;		//磁头数
+	u_32	sector;		//每磁道扇区数
+	u_32	cylinder;	//柱面数
+	u_32	wpcom;		//写前预补偿柱面号
+	u_32	lzone;		//磁头着陆区柱面号
+	u_32	ctrl;		//控制字节
+} HARD_DISK;
+
+//磁盘分区信息结构
+typedef struct hd
+{
+	u_32	start_sector;	//分区起始扇区号
+	u_32	cnt_sectors;	//分区扇区总数
+} HD;
+
+EXTERN	t_32				ROOT_DEV;
+EXTERN	DRIVE_INFO_TABLE	DRIVE_INFO;
+EXTERN	HARD_DISK			HARD_DISK_INFO;
+//0表示硬盘整体信息，其余表示各分区信息
+EXTERN	HD					HD_INFO[];
 
 #endif
