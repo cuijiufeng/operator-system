@@ -13,13 +13,13 @@
 #include	<chr_drv/chr.h>
 #include	<int.h>
 
-EXTERN	TTY_QUEUE* TTY_QUEUE_LIST[] = { 
+TTY_QUEUE* TTY_QUEUE_LIST[] = { 
 	&TTY_TABLE[0].read_q, &TTY_TABLE[0].write_q,
 	&TTY_TABLE[1].read_q, &TTY_TABLE[1].write_q,
 	&TTY_TABLE[2].read_q, &TTY_TABLE[2].write_q 
 };
 
-EXTERN	TTY_STRUCT TTY_TABLE[] = {
+TTY_STRUCT TTY_TABLE[] = {
 	{
 		{ICRNL,			//将输入CR转换为NL
 		OPOST | ONLCR,	//将输出CR转换为CRNL
@@ -67,4 +67,16 @@ PUBLIC	void	initTty()
 	//开启键盘中断
 	enableIrq(KEYBOARD_IRQ);
 	putIrqHandler(KEYBOARD_IRQ, keyboardHandler);
+}
+
+PUBLIC	int ttyWrite(unsigned channel, char * buf, int nr)
+{
+	char *b = buf;
+	//控制台终端
+	TTY_STRUCT* tty = TTY_TABLE + channel;
+	while (nr > 0)
+	{
+
+	}
+	return b - buf;
 }

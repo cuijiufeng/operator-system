@@ -21,5 +21,6 @@ void	cleanScreen();
 //memlib.asm
 u_32	memcpy(u_32 dest, u_32 src, u_32 count);
 void	memset(u_32 dest, u_8 ch, u_32 count);
+int		strlen(char* str);
 
 #endif // !_OS_KLIB_H_

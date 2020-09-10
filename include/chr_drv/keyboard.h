@@ -111,17 +111,6 @@
 #define PAD_MID			PAD_5			/* Middle key*/
 #define PAD_DEL			PAD_DOT			/* Del		*/
 
-EXTERN	t_bool		shift_l;		//l shift state
-EXTERN	t_bool		shift_r;		//r shift state
-EXTERN	t_bool		alt_l;			//l alt state
-EXTERN	t_bool		alt_r;			//r alt state
-EXTERN	t_bool		ctrl_l;			//l ctrl state
-EXTERN	t_bool		ctrl_r;			//r ctrl state
-EXTERN	t_bool		caps_lock;		//caps_lock¼ü×´Ì¬
-EXTERN	t_bool		num_lock;		//num_lock¼ü×´Ì¬
-EXTERN	t_bool		scroll_lock;	//scroll_lock¼ü×´Ì¬
-EXTERN	t_bool		code_with_E0;
-
 PRIVATE	void	setLeds();
 PRIVATE	void	kbWait();
 PRIVATE	void	kbAck();

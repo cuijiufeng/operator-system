@@ -39,4 +39,6 @@ EXTERN	TTY_QUEUE* TTY_QUEUE_LIST[];
 //tty数据结构数组。其中包含三个初始化的tty_struct,分别是控制台，串口终端1和串口终端2
 EXTERN	TTY_STRUCT TTY_TABLE[];
 
+PUBLIC	int ttyWrite(unsigned channel, char * buf, int nr);
+
 #endif // !_OS_TTY_H_

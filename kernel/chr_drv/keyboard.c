@@ -12,18 +12,17 @@
 #include	<chr_drv/termios.h>
 #include	<chr_drv/tty.h>
 
-t_bool		shift_l = FALSE;		//l shift state
-t_bool		shift_r = FALSE;		//r shift state
-t_bool		alt_l = FALSE;			//l alt state
-t_bool		alt_r = FALSE;			//r alt state
-t_bool		ctrl_l = FALSE;			//l ctrl state
-t_bool		ctrl_r = FALSE;			//r ctrl state
-t_bool		caps_lock = FALSE;		//caps_lock¼ü×´Ì¬
-t_bool		num_lock = TRUE;		//num_lock¼ü×´Ì¬
-t_bool		scroll_lock = FALSE;	//scroll_lock¼ü×´Ì¬
-t_bool		code_with_E0 = FALSE;
+PRIVATE	t_bool		shift_l = FALSE;		//l shift state
+PRIVATE	t_bool		shift_r = FALSE;		//r shift state
+PRIVATE	t_bool		alt_l = FALSE;			//l alt state
+PRIVATE	t_bool		alt_r = FALSE;			//r alt state
+PRIVATE	t_bool		ctrl_l = FALSE;			//l ctrl state
+PRIVATE	t_bool		ctrl_r = FALSE;			//r ctrl state
+PRIVATE	t_bool		caps_lock = FALSE;		//caps_lock¼ü×´Ì¬
+PRIVATE	t_bool		num_lock = TRUE;		//num_lock¼ü×´Ì¬
+PRIVATE	t_bool		scroll_lock = FALSE;	//scroll_lock¼ü×´Ì¬
+PRIVATE	t_bool		code_with_E0 = FALSE;
 
-PRIVATE		u_32	pos = 0x460;
 PUBLIC	void	keyboardHandler(int irq)
 {
 	t_bool	make;

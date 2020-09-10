@@ -32,6 +32,7 @@ inline __attribute__((always_inline)) t_32 setup(DRIVE_INFO_TABLE* drv_info)
 
 PUBLIC	void	cmain()
 {
+	printf("%05i", -12);
 	//fork复制一个进程，父进程返回子进程的pid会执行下面的while，子进程返回0会执行if。程序分开执行了
 	if(!fork())
 	{

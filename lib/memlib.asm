@@ -5,6 +5,7 @@
 [section .text]
 global	memcpy
 global	memset
+global	strlen
 
 ;用于内存拷贝的函数
 ;-----------------------------------------------------------------------------------------------------------------------
@@ -45,6 +46,26 @@ memset:
 	rep stosb
 	pop ecx
 	pop edi
+	mov esp, ebp
+	pop ebp
+	ret
+
+;字符串长度
+;-----------------------------------------------------------------------------------------------------------------------
+strlen:
+	push ebp
+	mov ebp, esp
+	push esi
+	mov esi, [ss:ebp+8]					;str
+	mov eax, 0
+	STR_LEN_LOOP:
+	cmp byte [esi], 0
+	je RET
+	inc esi
+	inc eax
+	jmp STR_LEN_LOOP
+	RET:
+	pop esi
 	mov esp, ebp
 	pop ebp
 	ret
