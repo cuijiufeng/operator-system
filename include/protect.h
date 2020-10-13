@@ -5,7 +5,15 @@
 #ifndef _OS_PROTECT_H_
 #define _OS_PROTECT_H_
 
+ //这些是在setup里确定的
+#define	EXT_MEM_SIZE	(*((t_32*)0x9A000))
+#define	ROOT_DEV_TYPE	(*((t_32*)0x9A004))
+#define	DRIVER_INFOS	((t_8*)0x9A010)
 //---------------------------------------------------------------------------------------
+//CMOS端口
+#define	CMOS_CTL		0x70
+#define	CMOS_VALUE		0x71
+//GDT、IDT
 #define	GDT_SIZE			128
 #define	IDT_SIZE			256
 /* 权限 */

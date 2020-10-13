@@ -17,6 +17,7 @@ u_32	STARTUP_TIME;		//从1970年1月1日08:00:00到现在的秒数
 
 PUBLIC	void	initTime()
 {
+	TICKS = 0;
 	TIME time;
 	outByte(CMOS_CTL, CMOS_DATA_SEC);
 	time.tm_sec = BCD_TO_BIN(inByte(CMOS_VALUE));	//读取秒数
@@ -94,32 +95,10 @@ PRIVATE	u_32	mkTime(TIME* time)
 //时钟中断处理子程序
 PUBLIC	void	timerHandler(int irq)
 {
-	int i, num = TICKS;
-	char ch;
-	char str[8], *p = str;
-	for (i = 28; i >= 0; i -= 4)
-	{
-		ch = (num >> i) & 0xF;
-		ch += '0';
-		if (ch > '9')
-		{
-			ch += 7;
-		}
-		*p++ = ch;
-	}
-	*((u_16*)(0xb8000)) = (0x0F00 | str[0]);
-	*((u_16*)(0xb8002)) = (0x0F00 | str[1]);
-	*((u_16*)(0xb8004)) = (0x0F00 | str[2]);
-	*((u_16*)(0xb8006)) = (0x0F00 | str[3]);
-	*((u_16*)(0xb8008)) = (0x0F00 | str[4]);
-	*((u_16*)(0xb800A)) = (0x0F00 | str[5]);
-	*((u_16*)(0xb800C)) = (0x0F00 | str[6]);
-	*((u_16*)(0xb800E)) = (0x0F00 | str[7]);
-
 	TICKS++;						//时钟中断发生次数加一
 	if ((--CURRENT->counter) > 0)	//当前进程的时间片减一,如果减到=0则重新调度
 	{
-		return 0;
+		return;
 	}
 	schedule();						//进程调度
 }

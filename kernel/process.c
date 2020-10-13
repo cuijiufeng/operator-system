@@ -76,8 +76,9 @@ PUBLIC	t_32	copyProcess(t_32 nr, u_32 none, u_32 edx, u_32 ecx, u_32 ebx,						/
 	u_32 EDI, u_32 ESI, u_32 EBP, u_32 EBX, u_32 EDX, u_32 ECX, u_32 gs, u_32 fs, u_32 es, u_32 ds,	//保存ring3时寄存器的值
 	u_32 eip, u_32 cs, u_32 eflags, u_32 esp, u_32 ss)	//ring3时的值
 {
-	PROCESS* p;
-	p = (PROCESS*)getFreePage();
+	int i;
+	FILE* f;
+	PROCESS* p = (PROCESS*)getFreePage();
 	//如果没有空闲的内存页
 	if (!p) 
 	{
@@ -123,6 +124,27 @@ PUBLIC	t_32	copyProcess(t_32 nr, u_32 none, u_32 edx, u_32 ecx, u_32 ebx,						/
 		freePage((u_32)p);
 		return -1;
 	}
+	//拷贝进程打开的文件
+	for (i = 0; i < NR_OPEN; i++)
+	{
+		if ((f = p->filp[i]))
+		{
+			f->f_count++;
+		}
+			
+	}
+	if (CURRENT->pwd)
+	{
+		CURRENT->pwd->i_count++;
+	}
+	if (CURRENT->root)
+	{
+		CURRENT->root->i_count++;
+	}
+	if (CURRENT->executable)
+	{
+		CURRENT->executable->i_count++;
+	}
 	//设置tss与ldt
 	setGdtDesc(&GDT[(SELECTOR_FIRST_TASK_TSS >> 3) + 2*nr], &(TASKS[nr]->tss), sizeof(TSS), DA_386TSS);
 	setGdtDesc(&GDT[(SELECTOR_FIRST_TASK_LDT >> 3) + 2*nr], &(TASKS[nr]->ldt), sizeof(DESCRIPTOR)*3, DA_LDT);
@@ -156,16 +178,31 @@ PRIVATE	t_32	copyMem(t_32 nr, PROCESS* p)
 	return 0;
 }
 
-//进程调度函数
+//进程调度函数，在没有进程可以调度的情况下0号进程会被调度
 PUBLIC	void	schedule()
 {
 	int next, c, i;
+
+	//遍历所有的任务(不包括0号进程)
+	for (i = i; i < NR_TASKS; i++) 
+	{
+		//如果任务不为空
+		if (!TASKS[i]) 
+		{
+			//如果进程是可中断状态并且有信号(信号值不为阻塞信号)
+			if ((TASKS[i]->signal & (BLOCKABLE & ~TASKS[i]->blocked)) && TASKS[i]->state == TASK_INTERRUPTIBLE)
+			{
+				TASKS[i]->state = TASK_RUNNING;
+			}
+		}
+	}
+
 	while (1)
 	{
-		c = 0;
-		next = 0;
-		//遍历所有的任务
-		for (i = 0; i < NR_TASKS; i++)
+		c = -1;							//默认值为-1，保证0号进程会被默认调度的
+		next = 0;						//默认调度0号进程
+		//遍历所有的任务(不包括0号进程，0号进程永远会被调度)
+		for (i = 1; i < NR_TASKS; i++)
 		{
 			//如果进程来存在则下个进程
 			if (!TASKS[i])
@@ -185,7 +222,7 @@ PUBLIC	void	schedule()
 			break;
 		}
 		//如果没有可调度的进程，重新设置进程的时间片
-		for (i = 0; i < NR_TASKS; i++)
+		for (i = 1; i < NR_TASKS; i++)
 		{
 			if (TASKS[i])
 			{
@@ -194,4 +231,41 @@ PUBLIC	void	schedule()
 		}
 	}
 	SWITCH_TO(next);
+}
+
+//睡眠进程，如果p不为空,则唤醒p进程
+PUBLIC	void sleepOn(PROCESS** p)
+{
+	PROCESS* tmp;
+	//p指向进程等待队列，如果进程等待队列为空，则直接返回
+	if (!p) 
+	{
+		return;
+	}
+	//0号进程不被状态影响，所以不能睡眠0号进程
+	if (CURRENT == &TASKS[0])
+	{
+		printk("task[0] trying to sleep");
+		while (1);
+	}
+	tmp = *p;			//tmp指向进程等待队列
+	*p = CURRENT;		//将当前进程放入进程等待队列
+	CURRENT->state = TASK_UNINTERRUPTIBLE;	//设置当前进程的状态
+	schedule();			//重新调度进程
+	*p = tmp;			//当进程被唤醒时继续往下执行
+	//如果进程等待队列里还有等待同一资源的进程应该一同被唤醒
+	if (tmp)
+	{
+		tmp->state = TASK_RUNNING;
+	}
+}
+
+//唤醒进程 
+PUBLIC	void wakeUp(PROCESS** p)
+{
+	//如果进程等待队列不为空并且等待进程不为空则设置进程的状态
+	if (p && *p) {
+		(*p)->state = TASK_RUNNING;
+		*p = NULL;
+	}
 }

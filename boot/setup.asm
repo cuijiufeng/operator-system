@@ -61,7 +61,7 @@ LABEL_START:
 		
 	NOT_FIND_THE_SETUP_FILE:
 	mov si,StringNotFindKernel
-	mov di,280H
+	mov di,3c0H
 	call displayString
 	jmp $
 		
@@ -100,7 +100,7 @@ LABEL_START:
 	LOAD_KERNEL_OVER:
 	call killMotor
 	mov si,StringLoadedKernel
-	mov di,280H
+	mov di,3c0H
 	call displayString
 
 	mov bx, DATA_BASE
@@ -111,14 +111,14 @@ LABEL_START:
 	add eax, 100000H						;加上1MB以下的内存，就是整个内存的大小
 	mov [es:MEMORY_SIZE_OFFSET], eax		;保存内存大小
 	mov si,MemerySizeStr
-	mov di,320H
+	mov di,460H
 	call displayString						;打印'Mem Size:'字符
 	call displayEAX							;打印内存的大小
 	
 	mov eax, ROOT_DEV
 	mov [es:HD_TYPE_OFFSET], eax
 	mov si,RootDevTypeStr
-	mov di,3c0H
+	mov di,500H
 	call displayString						;打印'root dev type:'字符
 	call displayEAX							;打印值
 	

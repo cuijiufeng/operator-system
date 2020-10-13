@@ -2,8 +2,11 @@
 ; 操作硬件的一些函数
 ;==================================================================================================
 
+global	nop
 global	outByte
 global	inByte
+global	portRead
+global	portWrite
 global	lgdtr
 global	lidtr
 global	ltr
@@ -12,67 +15,31 @@ global	loadCR3
 global	getDescLimit
 global	disableIrq
 global	enableIrq
-global	cleanScreen
-global	displayStr
+global	disableInt
+global	enableInt
 INT_M_CTL		equ	20H						;主8259的偶地址端口20H
 INT_M_CTLMASK	equ	21H						;主8259的奇地址端口21H
 INT_S_CTL		equ	0A0H					;从8259的偶地址端口A0H
 INT_S_CTLMASK	equ	0A1H					;从8259的偶地址端口A1H
 
 [section .text]
-;void cleanScreen();						清空屏幕
+;void	nop();
 ;-------------------------------------------------------------------------------------------
-cleanScreen:
-	push edi
-	push ax
-	push cx
-	mov edi,0B8000H
-	mov ax,0700H
-	mov cx,2000
-	.clear:
-		mov [gs:edi],ax
-		add di,2
-	loop .clear
-	pop cx
-	pop ax
-	pop edi
+nop:
+	nop
+	ret
+
+;void	disableInt();
+;-------------------------------------------------------------------------------------------
+disableInt:
+	cli
 	ret
 ;-------------------------------------------------------------------------------------------
 
-;void displayStr(char* str, int pos);		;打印字符串
+;void	enableInt();
 ;-------------------------------------------------------------------------------------------
-displayStr:
-	push ebp
-	mov ebp,esp
-		
-	mov esi,[ss:ebp+8]
-	mov edi,[ss:ebp+12]
-	add edi, 0B8000H
-	mov ah,0Fh
-	.1:
-		mov al,[ds:esi]			;取一个字符
-		inc esi					;下一个字符
-		cmp al,0				;c语言以0作为字符串的结束标志，如果是0的话就说明字符串结束了(不是字符0,是ascii码值为0)
-		je	.2
-		cmp al,0Ah				;是回车吗?回车换行
-		jnz .3
-		push eax				;ah中保存着字符的颜色
-		mov eax,edi
-		mov bl,160				;一行一共80个字符
-		div bl					;光标现在处于第几行
-		and eax,0FFh			;只留下除法的商
-		inc eax					;光标移到下一行
-		mov bl,160
-		mul bl
-		mov edi,eax
-		pop eax
-		jmp .1
-	.3:							;如果是普通字符就打印输出
-		mov [gs:edi],ax
-		add edi,2
-		jmp .1
-	.2:							;如果到字符串的结尾
-	pop ebp
+enableInt:
+	sti
 	ret
 ;-------------------------------------------------------------------------------------------
 
@@ -125,6 +92,26 @@ loadCR3:
 	mov cr3, eax
 	ret
 ;-------------------------------------------------------------------------------------------
+
+;void	portRead(t_port port, u_32 buf, u_32 nr);
+;-------------------------------------------------------------------------------------------
+portRead:
+	mov edx, [ss:esp+4]
+	mov edi, [ss:esp+8]
+	mov ecx, [ss:esp+12]
+	cld
+	rep insw
+	ret
+
+;void	portWrite(t_port port, u_32 buf, u_32 nr);
+;-------------------------------------------------------------------------------------------
+portWrite:
+	mov edx, [ss:esp+4]
+	mov edi, [ss:esp+8]
+	mov ecx, [ss:esp+12]
+	cld
+	rep outsw
+	ret
 
 ;void	outByte(t_port port, t_8 value);
 ;-------------------------------------------------------------------------------------------

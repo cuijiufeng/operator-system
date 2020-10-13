@@ -6,6 +6,7 @@
 #define	_OS_CHR_H_
 
 PUBLIC	void	initTty();
+PUBLIC	void	initConsole();
 PUBLIC	void	keyboardHandler(int irq);
 PUBLIC	void	conWrite(TTY_STRUCT* tty);
 PUBLIC	void	rsWrite(TTY_STRUCT* tty);

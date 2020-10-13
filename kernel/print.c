@@ -11,11 +11,32 @@
 #include	<process.h>
 #include	<chr_drv/termios.h>
 #include	<chr_drv/tty.h>
+#include	<blk_drv/blk.h>
+#include	<syscall.h>
 #include	<lib.h>
 
 PRIVATE	char	buf[512];
+PRIVATE	char	user_buf[512];
 
+inline __attribute__((always_inline)) t_32 write(u_32 fd, const char* buf, u_32 count)
+{
+	t_32 rs;
+	__asm__("int $0x80":"=a"(rs) : "a"(NR_WRITE), "d"(fd), "c"(buf), "b"(count));
+	return rs;
+}
+
+//用户模式下打印输出
 PUBLIC	int	printf(const char* fmt, ...)
+{
+	//...第一个参数的地址
+	char* arg_addr = (char*)&fmt + 4;
+	int i = vsprintf(user_buf, fmt, arg_addr);
+	write(1, user_buf, i);
+	return i;
+}
+
+//内核模式下打印输出
+PUBLIC	int	printk(const char* fmt, ...)
 {
 	//...第一个参数的地址
 	char* arg_addr = (char*)&fmt + 4;

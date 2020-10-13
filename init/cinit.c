@@ -5,16 +5,13 @@
  */
 #include	<type.h>
 #include	<mm.h>
+#include	<fs.h>
 #include	<protect.h>
 #include	<int.h>
 #include	<blk_drv/blk.h>
 #include	<lib.h>
 #include	<time.h>
 
-//这些是在setup里确定的
-#define	EXT_MEM_SIZE	(*((t_32*)0x9A000))
-#define	ROOT_DEV_TYPE	(*((t_32*)0x9A004))
-#define	DRIVER_INFOS	((t_8*)0x9A010)
 t_32				ROOT_DEV;
 
 PUBLIC void cinit()
@@ -41,14 +38,15 @@ PUBLIC void cinit()
 	
 	//ROOT_DEV
 	ROOT_DEV = ROOT_DEV_TYPE;
-	//硬盘参数
-	memcpy(&DRIVE_INFO, DRIVER_INFOS, 0x10);
 
 	initIdtDesc();
 	init8259A();
 	initTime();
 	initMemory(EXT_MEM_SIZE);
+	initBuffer(EXT_MEM_SIZE);
 	initSchedule();
+	initBlkDev();
+	initHarddisk();
 	initTty();
 
 	//设置ltr、lldt

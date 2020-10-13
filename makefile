@@ -4,7 +4,7 @@
 include	makefile.head
 
 LDFLAGS		+= -Ttext 0x10000
-OBJS		= kernel/kernel.o init/init.o mm/mm.o lib/lib.o kernel/blk_drv/blk_drv.o kernel/chr_drv/chr_drv.o
+OBJS		= kernel/kernel.o init/init.o mm/mm.o lib/lib.o fs/fs.o kernel/blk_drv/blk_drv.o kernel/chr_drv/chr_drv.o
 
 .PHONY : all clean
 
@@ -18,6 +18,7 @@ clean :
 	cd init && $(MAKE) clean
 	cd lib && $(MAKE) clean
 	cd mm && $(MAKE) clean
+	cd fs && $(MAKE) clean
 	cd kernel && $(MAKE) clean
 	cd kernel/blk_drv && $(MAKE) clean
 	cd kernel/chr_drv && $(MAKE) clean
@@ -33,6 +34,8 @@ lib/lib.o :
 	cd lib && $(MAKE) all
 mm/mm.o : 
 	cd mm && $(MAKE) all
+fs/fs.o : 
+	cd fs && $(MAKE) all
 kernel/kernel.o : 
 	cd kernel && $(MAKE) all
 kernel/blk_drv/blk_drv.o : 

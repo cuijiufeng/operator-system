@@ -6,6 +6,7 @@
 #include	<chr_drv/keyboard.h>
 #include	<fs.h>
 #include	<mm.h>
+#include	<lib.h>
 #include	<signal.h>
 #include	<protect.h>
 #include	<process.h>
@@ -26,8 +27,8 @@ PRIVATE	t_bool		code_with_E0 = FALSE;
 PUBLIC	void	keyboardHandler(int irq)
 {
 	t_bool	make;
-	t_32	key = 0;						//用一个整形来表示一个键
-	u_32*	keyrow;							//keymap的某一行
+	t_8		key = 0;						//用一个整形来表示一个键
+	u_8*	keyrow;							//keymap的某一行
 	u_32	column = 0;
 	t_bool	pad = FALSE;
 	u_8		scan_code = inByte(KB_DATA);
@@ -45,7 +46,6 @@ PUBLIC	void	keyboardHandler(int irq)
 
 	keyrow = keymap[(scan_code & 0x7F)];			//先定位到keymap的行
 	make = (scan_code & FLAG_BREAK ? FALSE : TRUE);	//是make还是break
-	keyrow = keymap[(scan_code & 0x7F)];			//先定位到keymap的行
 	t_bool caps = shift_l || shift_r;
 
 	//如果按下capslock键
@@ -192,14 +192,6 @@ PUBLIC	void	keyboardHandler(int irq)
 					break;
 			}
 		}
-		key |= (shift_l ? FLAG_SHIFT_L : 0);
-		key |= (shift_r ? FLAG_SHIFT_R : 0);
-		key |= (ctrl_l ? FLAG_CTRL_L : 0);
-		key |= (ctrl_r ? FLAG_CTRL_R : 0);
-		key |= (alt_l ? FLAG_ALT_L : 0);
-		key |= (alt_r ? FLAG_ALT_R : 0);
-		key |= pad ? FLAG_PAD : 0;
-
 		//将key放入控制台读队列
 		TTY_TABLE[0].read_q.buf[TTY_TABLE[0].read_q.head] = key;
 		TTY_TABLE[0].read_q.head = (TTY_TABLE[0].read_q.head + 1) % TTY_BUF_SIZE;

@@ -14,8 +14,6 @@
 #define RATE_GENERATOR	0x34		//00-11-010-0 : 计数器0-写初值(先写低8位，再写高8位)-模式2(分频器)-二进制计数
 #define TIMER_FREQ		1193182L	//8253输入频率
 #define HZ				100			//8253输出频率(10ms:10毫秒)
-#define	CMOS_CTL		0x70
-#define	CMOS_VALUE		0x71
 #define	CMOS_DATA_SEC	0x80
 #define	CMOS_DATA_MIN	0x82
 #define	CMOS_DATA_HOUR	0x84

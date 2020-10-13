@@ -5,7 +5,7 @@ include	../../makefile.head
 
 IPATH		= ../../include/
 LDFLAGS		+= -r
-OBJS		= harddisk.o
+OBJS		= harddisk.o ll_rw_blk.o
 
 .PHONY : all clean
 %.o : %.asm
@@ -23,3 +23,4 @@ blk_drv.o : $(OBJS)
 
 # “¿¿µ
 harddisk.o : harddisk.c
+ll_rw_blk.o : ll_rw_blk.c

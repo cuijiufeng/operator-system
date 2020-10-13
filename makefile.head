@@ -9,11 +9,11 @@ GCC			= gcc
 LD			= ld
 ifeq ($(DEBUG), 1)
 	ASMFLAGS	= -f elf32
-	GCCFLAGS	= -g -c -m32 -w
+	GCCFLAGS	= -g -c -m32 -fno-builtin -fno-stack-protector #-w
 	LDFLAGS		= -m elf_i386
 else
 	ASMFLAGS	= -f elf32
-	GCCFLAGS	= -c -m32 -w
+	GCCFLAGS	= -c -m32 -w -fno-builtin -fno-stack-protector #-w
 	LDFLAGS		= -m elf_i386 -s
 endif
 IPATH		= ../include/

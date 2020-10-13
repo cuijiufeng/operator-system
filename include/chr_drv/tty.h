@@ -12,7 +12,7 @@
 	 eol2=\0
 */
 #define INIT_C_CC "\003\034\177\025\004\0\1\0\021\023\032\0\022\017\027\026\0"
-#define TTY_BUF_SIZE 512
+#define TTY_BUF_SIZE 1024
 
 //tty字符缓冲队列。用于tty读、写和辅助缓冲队列
 typedef struct tty_queue {
@@ -20,7 +20,7 @@ typedef struct tty_queue {
 	u_32 head;		//头指针
 	u_32 tail;		//尾指针
 	PROCESS* proc_list;		//等待进程列表
-	u_32 buf[TTY_BUF_SIZE];	//队列缓冲区，存放数据
+	t_8 buf[TTY_BUF_SIZE];	//队列缓冲区，存放数据
 } TTY_QUEUE;
 
 //tty数据结构
@@ -39,6 +39,8 @@ EXTERN	TTY_QUEUE* TTY_QUEUE_LIST[];
 //tty数据结构数组。其中包含三个初始化的tty_struct,分别是控制台，串口终端1和串口终端2
 EXTERN	TTY_STRUCT TTY_TABLE[];
 
+PUBLIC	int	ttyRead(unsigned channel, char * buf, int nr);
 PUBLIC	int ttyWrite(unsigned channel, char * buf, int nr);
+PUBLIC	t_bool	fullQueue(TTY_QUEUE* queue);
 
 #endif // !_OS_TTY_H_

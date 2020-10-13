@@ -15,7 +15,7 @@
 typedef	struct task_struct {
 	//这些是硬编码的-别碰
 	t_32	state;					//任务的运行状态-1不可运行, 0就绪, >0已停止
-	u_32	counter;				//任务的运行时间片
+	t_32	counter;				//任务的运行时间片
 	u_32	priority;				//任务的优先级
 	u_32	signal;					//信号，用于进程间的通信
 	SIGNAL sigaction[32];			//信号执行属性结构
@@ -71,6 +71,8 @@ PRIVATE	t_32	copyMem(t_32 nr, PROCESS* p);
 PUBLIC	t_32	copyProcess(t_32 nr, u_32 none, u_32 edx, u_32 ecx, u_32 ebx,								//edx,ecx,ebx系统调用的参数
 			u_32 EDI, u_32 ESI, u_32 EBP, u_32 EBX, u_32 EDX, u_32 ECX, u_32 gs, u_32 fs, u_32 es, u_32 ds,	//保存ring3时寄存器的值
 			u_32 eip, u_32 cs, u_32 eflags, u_32 esp, u_32 ss);	//ring3时的值
+PUBLIC	void sleepOn(PROCESS** p);
+PUBLIC	void wakeUp(PROCESS** p);
 //---------------------------------------------------------------------------------------
 
 #endif // !_OS_PROCESS_H_

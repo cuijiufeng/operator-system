@@ -5,23 +5,51 @@
 #ifndef	_OS_BLK_H_
 #define	_OS_BLK_H_
 
-//BIOS读取到的硬盘参数信息结构
-typedef struct drive_info
-{
-	t_16	cylinders;		//0x00字柱面数
-	t_8	heads;				//0x02字节磁头数
-	t_16	dec_cylind;		//0x03字开始减小写电流的柱面(仅PCXT使用,其它为0)
-	t_16	compensate;		//0x05字开始写前预补偿柱面号(乘4)
-	t_8	ECC_len;			//0x07字节最大ECC猝发长度(仅XT使用,其它为0)
-	t_8 ctrl_byte;			//0x08字节控制字节(驱动器步进选择)
-	t_8 complex;			//位0未用,位1保留(0)(关闭IRQ),位2允许复位,位3若磁头数大于8则置1,位4未用(0),位5若在柱面数+1处有生产商的坏区图,则置1,位6禁止ECC重试,位7禁止访问重试。
-	t_8	stand_timeout;		//0x09字节标准超时值(仅XT使用,其它为0)
-	t_8	format_timeout;		//0x0A字节格式化超时值(仅XT使用,其它为0)
-	t_8	test_timeout;		//0x0B字节检测驱动器超时值(仅XT使用,其它为0)
-	t_8	stop_cylind;		//0x0C字磁头着陆(停止)柱面号
-	t_8	sectors;			//0x0E字节每磁道扇区数
-	t_8	blank;				//0x0F字节保留。
-} DRIVE_INFO_TABLE;
+#define MAJOR_NR	3
+#define NR_REQUEST	32
+#define NR_BLK_DEV	7
+#define MAX_ERRORS	7
+#define HD_CMD		0x3f6
+ /* Hd controller regs. Ref: IBM AT Bios-listing */
+#define HD_DATA		0x1f0	/* _CTL when writing */
+#define HD_ERROR	0x1f1	/* see err-bits */
+#define HD_STATUS	0x1f7	/* see status-bits */
+
+/* Bits of HD_STATUS */
+#define ERR_STAT	0x01
+#define INDEX_STAT	0x02
+#define ECC_STAT	0x04	/* Corrected error */
+#define DRQ_STAT	0x08
+#define SEEK_STAT	0x10
+#define WRERR_STAT	0x20
+#define READY_STAT	0x40
+#define BUSY_STAT	0x80
+
+ /* Values for HD_COMMAND */
+#define WIN_RESTORE		0x10
+#define WIN_READ		0x20
+#define WIN_WRITE		0x30
+#define WIN_SPECIFY		0x91
+
+#define IN_ORDER(s1,s2) \
+((s1)->cmd<(s2)->cmd || ((s1)->cmd==(s2)->cmd && ((s1)->dev < (s2)->dev || ((s1)->dev == (s2)->dev && (s1)->sector < (s2)->sector))))
+
+typedef struct request {
+	t_32 dev;		/* -1 if no request */
+	t_32 cmd;		/* READ or WRITE */
+	t_32 errors;
+	u_32 sector;
+	u_32 nr_sectors;
+	char* buffer;
+	PROCESS* waiting;
+	BUFFER_HEAD* bh;
+	struct request* next;
+} REQUEST;
+
+typedef struct blk_dev{
+	void(*request_fn)(void);
+	REQUEST* current_request;
+} BLK_DEV;
 
 //磁盘参数及类型信息结构
 typedef struct hard_disk
@@ -42,9 +70,18 @@ typedef struct hd
 } HD;
 
 EXTERN	t_32				ROOT_DEV;
-EXTERN	DRIVE_INFO_TABLE	DRIVE_INFO;
+EXTERN	PROCESS*			WAIT_FOR_REQUEST;
+EXTERN	REQUEST				REQUEST_INFO[NR_REQUEST];
+EXTERN	BLK_DEV				BLK_DEV_INFO[NR_BLK_DEV];
 EXTERN	HARD_DISK			HARD_DISK_INFO;
 //0表示硬盘整体信息，其余表示各分区信息
 EXTERN	HD					HD_INFO[];
+
+PUBLIC	void ll_rw_block(int rw, BUFFER_HEAD* bh);
+PUBLIC	void lockBuffer(BUFFER_HEAD* bh);
+PUBLIC	void unlockBuffer(BUFFER_HEAD* bh);
+PRIVATE void makeRequest(int major, int rw, BUFFER_HEAD* bh);
+PUBLIC	void end_request(int uptodate);
+PUBLIC	void harddiskRequest();
 
 #endif

@@ -4,6 +4,7 @@
  */
 #include	<type.h>
 #include	<mm.h>
+#include	<fs.h>
 #include	<protect.h>
 #include	<int.h>
 #include	<blk_drv/blk.h>
@@ -28,8 +29,8 @@ PUBLIC	void	init8259A()
 	outByte(INT_S_CTLMASK, 0x2);				//对应'主8259A'的IR2				ICW3
 	outByte(INT_S_CTLMASK, 0x1);				//									ICW4
 
-	outByte(INT_M_CTLMASK, 0xFB);				//屏蔽‘主8259A’所有中断			OCW1
-	outByte(INT_S_CTLMASK, 0xFF);				//屏蔽‘从8259A’所有中断			OCW1
+	outByte(INT_M_CTLMASK, 0xFB);				//屏蔽中断			OCW1
+	outByte(INT_S_CTLMASK, 0xFF);				//屏蔽中断			OCW1
 }
 
 PUBLIC void initIdtDesc()

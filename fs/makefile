@@ -4,7 +4,7 @@
 include	../makefile.head
 
 LDFLAGS		+= -r
-OBJS		= memlib.o klib.o
+OBJS		= read_write.o buffer.o inode.o super.o char_dev.o
 
 .PHONY : all clean
 %.o : %.asm
@@ -12,14 +12,17 @@ OBJS		= memlib.o klib.o
 %.o : %.c
 	$(GCC) $(GCCFLAGS) -I$(IPATH) $< -o $@
 
-all : lib.o
+all : fs.o
 
 clean : 
-	rm -rf $(OBJS) lib.o
+	rm -rf $(OBJS) fs.o
 	
-lib.o : $(OBJS)
+fs.o : $(OBJS)
 	$(LD) $(LDFLAGS) $^ -o $@
 
 # 依赖
-memlib.o : memlib.asm
-klib.o : klib.asm
+read_write.o : read_write.c
+buffer.o : buffer.c
+inode.o :  inode.c
+super.o : super.c
+char_dev.o : char_dev.c
