@@ -8,6 +8,7 @@ extern SYS_CALL_TABLE
 extern schedule
 extern syserrHandler
 extern writeProtectPage
+extern missingPage
 global sysCall
 global divideError,singleStepException,nmi,breakpointException,overflow,boundsCheck,invalOpcode,coprNotAvailable
 global doubleFault,coprSegOverrun,invalTss,segmentNotPresent,stackException,generalProtection,pageFault,coprError
@@ -183,7 +184,7 @@ pageFault:
 	call writeProtectPage	;页写保护处理函数
 	jmp P_RET
 	NO_P:
-	;call missingPage		;调用缺页处理函数
+	call missingPage		;调用缺页处理函数
 	P_RET:
 	add esp, 8
 	pop eax

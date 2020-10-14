@@ -21,6 +21,7 @@ PROCESS* CURRENT = &(INIT_TASKS[0].task);
 
 PUBLIC	void initSchedule()
 {
+	last_pid = 0;
 	//初始化默认任务
 	memset(&INIT_TASKS[0].task, 0, sizeof(PROCESS_UNION));
 	INIT_TASKS[0].task.counter = 15;
@@ -131,7 +132,6 @@ PUBLIC	t_32	copyProcess(t_32 nr, u_32 none, u_32 edx, u_32 ecx, u_32 ebx,						/
 		{
 			f->f_count++;
 		}
-			
 	}
 	if (CURRENT->pwd)
 	{
@@ -184,7 +184,7 @@ PUBLIC	void	schedule()
 	int next, c, i;
 
 	//遍历所有的任务(不包括0号进程)
-	for (i = i; i < NR_TASKS; i++) 
+	for (i = 1; i < NR_TASKS; i++) 
 	{
 		//如果任务不为空
 		if (!TASKS[i]) 

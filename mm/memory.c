@@ -223,9 +223,17 @@ PUBLIC	void	unWriteProtectPage(u_32* pg_tb_item)
 //page fault由于页写保护发生异常的处理函数
 PUBLIC	void	writeProtectPage(u_32 err_code, u_32 addr)
 {
+	printk("addr:%x\t", addr);
 	//((addr>>22)<<4)为addr在一级页中的项地址，之后取一级页项对应的值->二级页的基地址,0xfffff000是因为页都是4KB对齐的
 	u_32 pg_tb_dir = *((u_32*)((addr>>22)<<2)) & 0xfffff000;
 	//(((addr>>12) & 0x3ff)<<2)为二级页项相对于二级页基址的偏移+二级页基址=二级页项的地址
 	u_32 pg_tb_item = pg_tb_dir + (((addr>>12) & 0x3ff)<<2);
 	unWriteProtectPage((u_32*)pg_tb_item);
+}
+
+//page fault缺页
+PUBLIC	void missingPage(u_32 error_code, u_32 addr)
+{
+	//todo
+	printk("addr:%x\t", addr);
 }

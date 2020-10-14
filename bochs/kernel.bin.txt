@@ -5,7 +5,7 @@ e_machine		3H
 e_version		1H
 e_entry			10000H
 e_phoff			34H
-e_shoff			1bc64H
+e_shoff			1f418H
 e_flags			0H
 e_ehsize		34H
 e_phentsize		20H
@@ -18,17 +18,17 @@ p_type			1H
 p_offset		1000H
 p_vaddr			10000H
 p_paddr			10000H
-p_filesz		4644H
-p_memsz			4644H
+p_filesz		5bb8H
+p_memsz			5bb8H
 p_flags			5H
 p_align			1000H
 -------------------------------------Program Header 1---------------------------------------------
 p_type			1H
-p_offset		6000H
-p_vaddr			16000H
-p_paddr			16000H
-p_filesz		4c92H
-p_memsz			8d68H
+p_offset		7000H
+p_vaddr			17000H
+p_paddr			17000H
+p_filesz		4cb2H
+p_memsz			9240H
 p_flags			6H
 p_align			1000H
 -------------------------------------Program Header 2---------------------------------------------
@@ -57,7 +57,7 @@ sh_type			1H
 sh_flags		6H
 sh_addr			10000H
 sh_offset		1000H
-sh_size			366fH
+sh_size			46eaH
 sh_link			0H
 sh_info			0H
 sh_addralign	10H
@@ -66,9 +66,9 @@ sh_entsize		0H
 sh_name			21H
 sh_type			1H
 sh_flags		2H
-sh_addr			13680H
-sh_offset		4680H
-sh_size			6f0H
+sh_addr			14700H
+sh_offset		5700H
+sh_size			8fcH
 sh_link			0H
 sh_info			0H
 sh_addralign	20H
@@ -77,9 +77,9 @@ sh_entsize		0H
 sh_name			29H
 sh_type			1H
 sh_flags		2H
-sh_addr			13d70H
-sh_offset		4d70H
-sh_size			8d4H
+sh_addr			14ffcH
+sh_offset		5ffcH
+sh_size			bbcH
 sh_link			0H
 sh_info			0H
 sh_addralign	4H
@@ -88,9 +88,9 @@ sh_entsize		0H
 sh_name			33H
 sh_type			1H
 sh_flags		3H
-sh_addr			16000H
-sh_offset		6000H
-sh_size			4c92H
+sh_addr			17000H
+sh_offset		7000H
+sh_size			4cb2H
 sh_link			0H
 sh_info			0H
 sh_addralign	20H
@@ -99,9 +99,9 @@ sh_entsize		0H
 sh_name			39H
 sh_type			8H
 sh_flags		3H
-sh_addr			1aca0H
-sh_offset		ac92H
-sh_size			40c8H
+sh_addr			1bcc0H
+sh_offset		bcb2H
+sh_size			4580H
 sh_link			0H
 sh_info			0H
 sh_addralign	20H
@@ -111,7 +111,7 @@ sh_name			3eH
 sh_type			1H
 sh_flags		30H
 sh_addr			0H
-sh_offset		ac92H
+sh_offset		bcb2H
 sh_size			2cH
 sh_link			0H
 sh_info			0H
@@ -122,8 +122,8 @@ sh_name			47H
 sh_type			1H
 sh_flags		0H
 sh_addr			0H
-sh_offset		acbeH
-sh_size			260H
+sh_offset		bcdeH
+sh_size			280H
 sh_link			0H
 sh_info			0H
 sh_addralign	1H
@@ -133,8 +133,8 @@ sh_name			56H
 sh_type			1H
 sh_flags		0H
 sh_addr			0H
-sh_offset		af1eH
-sh_size			aa0dH
+sh_offset		bf5eH
+sh_size			c09cH
 sh_link			0H
 sh_info			0H
 sh_addralign	1H
@@ -144,8 +144,8 @@ sh_name			62H
 sh_type			1H
 sh_flags		0H
 sh_addr			0H
-sh_offset		1592bH
-sh_size			1de1H
+sh_offset		17ffaH
+sh_size			22e6H
 sh_link			0H
 sh_info			0H
 sh_addralign	1H
@@ -155,8 +155,8 @@ sh_name			70H
 sh_type			1H
 sh_flags		0H
 sh_addr			0H
-sh_offset		1770cH
-sh_size			1e19H
+sh_offset		1a2e0H
+sh_size			252fH
 sh_link			0H
 sh_info			0H
 sh_addralign	1H
@@ -166,8 +166,8 @@ sh_name			7cH
 sh_type			1H
 sh_flags		30H
 sh_addr			0H
-sh_offset		19525H
-sh_size			e56H
+sh_offset		1c80fH
+sh_size			fb0H
 sh_link			0H
 sh_info			0H
 sh_addralign	1H
@@ -177,10 +177,10 @@ sh_name			1H
 sh_type			2H
 sh_flags		0H
 sh_addr			0H
-sh_offset		1a37cH
-sh_size			fd0H
+sh_offset		1d7c0H
+sh_size			11e0H
 sh_link			dH
-sh_info			7dH
+sh_info			8fH
 sh_addralign	4H
 sh_entsize		10H
 -------------------------------------section Header 13---------------------------------------------
@@ -188,8 +188,8 @@ sh_name			9H
 sh_type			3H
 sh_flags		0H
 sh_addr			0H
-sh_offset		1b34cH
-sh_size			88eH
+sh_offset		1e9a0H
+sh_size			9eeH
 sh_link			0H
 sh_info			0H
 sh_addralign	1H
@@ -199,7 +199,7 @@ sh_name			11H
 sh_type			3H
 sh_flags		0H
 sh_addr			0H
-sh_offset		1bbdaH
+sh_offset		1f38eH
 sh_size			87H
 sh_link			0H
 sh_info			0H

@@ -201,15 +201,15 @@ PRIVATE void hdOut(u_32 drive, u_32 nsect, u_32 sect, u_32 head, u_32 cyl, u_32 
 		while (1);
 	}
 	DEVICE_INTR = intr_addr;
-	outByte(HARD_DISK_INFO.ctrl, HD_CMD);
+	outByte(HD_CMD, HARD_DISK_INFO.ctrl);
 	port = HD_DATA;
-	outByte(HARD_DISK_INFO.wpcom >> 2, ++port);
-	outByte(nsect, ++port);
-	outByte(sect, ++port);
-	outByte(cyl, ++port);
-	outByte(cyl >> 8, ++port);
-	outByte(0xA0 | (drive << 4) | head, ++port);
-	outByte(cmd, ++port);
+	outByte(++port, HARD_DISK_INFO.wpcom >> 2);
+	outByte(++port, nsect);
+	outByte(++port, sect);
+	outByte(++port, cyl);
+	outByte(++port, cyl >> 8);
+	outByte(++port, 0xA0 | (drive << 4) | head);
+	outByte(++port, cmd);
 }
 
 PRIVATE void resetHd(int nr)
